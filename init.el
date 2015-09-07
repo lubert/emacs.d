@@ -43,6 +43,7 @@
  'nav
  'paredit
  'scss-mode
+ 'visible-mark
  'web-mode
  'zenburn-theme
 )
@@ -117,6 +118,10 @@
 (setq uniquify-after-kill-buffer-p t) ; rename after killing uniquified
 (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
 
+;; visible-mark
+(require 'visible-mark)
+(global-visible-mark-mode 1)
+
 ;; web-mode
 (autoload 'web-mode "web-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
@@ -140,6 +145,7 @@
 (setq css-indent-offset 2)
 (setq column-number-mode t)
 (setq inhibit-startup-message t)
+(setq next-line-add-newlines t)
 (setq save-abbrevs nil)
 (setq show-trailing-whitespace t)
 (setq suggest-key-bindings t)
