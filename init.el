@@ -34,6 +34,7 @@
  'flymake-go
  'go-mode
  'haskell-mode
+ 'highlight-symbol
  'js2-mode
  'less-css-mode
  'linum-off
@@ -167,8 +168,8 @@
 (global-set-key "\C-c;" 'comment-or-uncomment-region)
 (global-set-key (kbd "C-c C-c") 'comment-or-uncomment-region)
 (global-set-key "\C-ct" '(lambda ()(interactive)(ansi-term "/bin/bash")))
-(global-set-key "\M-n" 'next5)
-(global-set-key "\M-p" 'prev5)
+(global-set-key "\M-n" 'highlight-symbol-next)
+(global-set-key "\M-p" 'highlight-symbol-prev)
 (global-set-key "\M-o" 'other-window)
 (global-set-key "\M-i" 'back-window)
 (global-set-key "\C-z" 'zap-to-char)
@@ -178,12 +179,9 @@
 (global-set-key "\M-u" 'zap-to-char)
 (global-set-key (kbd "M-i") 'ido-goto-symbol)
 (global-set-key (kbd "<f1>") 'nav-toggle)
-(global-set-key (kbd "<f2>") '(lambda () (interactive) (other-window -1)))
-(global-set-key (kbd "<f3>") 'switch-to-next-buffer)
-(global-set-key (kbd "<f4>") 'kmacro-start-macro)
-(global-set-key (kbd "<f5>") 'kmacro-end-or-call-macro)
-(global-set-key (kbd "<f6>") 'linum-mode)
-(global-set-key (kbd "<f7>") 'eval-defun)
+(global-set-key (kbd "<f2>") 'highlight-symbol)
+(global-set-key (kbd "<f3>") 'highlight-symbol-query-replace)
+(global-set-key (kbd "<f4>") 'linum-mode)
 (global-set-key (kbd "\C-cs") '(lambda () (interactive) (split-window-vertically) (other-window 1) (shell)))
 (global-set-key (kbd "C-x f") 'find-file-in-repository)
 (global-set-key (kbd "C-x s") 'vc-git-grep2)

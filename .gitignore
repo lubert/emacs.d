@@ -4,3 +4,5 @@ recentf
 url
 ac-comphist.dat
 *.elc
+ido.last
+session*

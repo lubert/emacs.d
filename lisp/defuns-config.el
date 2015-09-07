@@ -35,14 +35,6 @@ Return a list of installed packages or nil for every skipped package."
          package)))
    packages))
 
-(defun next5()
-  (interactive)
-  (next-line 5))
-
-(defun prev5()
-  (interactive)
-  (previous-line 5))
-
 (defun delete-word (arg)
   "Delete characters forward until encountering the end of a word.
 With argument, do this that many times."
