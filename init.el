@@ -185,7 +185,6 @@
 (global-set-key (kbd "<f5>") 'kmacro-end-or-call-macro)
 (global-set-key (kbd "<f6>") 'linum-mode)
 (global-set-key (kbd "<f7>") 'eval-defun)
-(global-set-key (kbd "\C-cg") 'goto-line)
 (global-set-key (kbd "\C-cs") '(lambda () (interactive) (split-window-vertically) (other-window 1) (shell)))
 (global-set-key (kbd "C-x f") 'find-file-in-repository)
 (global-set-key (kbd "C-x s") 'vc-git-grep2)
