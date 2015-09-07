@@ -68,6 +68,9 @@
 (autoload 'guess-style-guess-all "guess-style" nil t)
 (autoload 'guess-style-guess-tab-width "guess-style" nil t)
 
+;; etags
+(require 'etags)
+
 ;; ido
 (require 'ido)
 (ido-mode t)
@@ -188,6 +191,8 @@
 (global-set-key (kbd "C-x s") 'vc-git-grep2)
 (global-set-key ">" 'my-indent-region)
 (global-set-key "<" 'my-unindent-region)
+(global-set-key [remap find-tag] 'ido-find-tag)
+(global-set-key (kbd "C-.") 'ido-find-file-in-tag-files)
 
 
 ;; -----------

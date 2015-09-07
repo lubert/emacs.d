@@ -94,6 +94,27 @@ and their terminal equivalents.")
 	     (setq deactivate-mark nil))
     (self-insert-command N)))
 
+(defun ido-find-tag ()
+  "Find a tag using ido"
+  (interactive)
+  (tags-completion-table)
+  (let (tag-names)
+    (mapc (lambda (x)
+	    (unless (integerp x)
+	      (push (prin1-to-string x t) tag-names)))
+	  tags-completion-table)
+    (find-tag (ido-completing-read "Tag: " tag-names))))
+
+(defun ido-find-file-in-tag-files ()
+  (interactive)
+  (save-excursion
+    (let ((enable-recursive-minibuffers t))
+      (visit-tags-table-buffer))
+    (find-file
+     (expand-file-name
+      (ido-completing-read
+              "Project file: " (tags-table-files) nil t)))))
+
 (defun ido-goto-symbol (&optional symbol-list)
   "Refresh imenu and jump to a place in the buffer using Ido."
   (interactive)
