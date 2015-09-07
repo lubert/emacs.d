@@ -174,6 +174,7 @@
 (global-set-key "\M-d" 'delete-word)
 (global-set-key "\M-h" 'backward-delete-word)
 (global-set-key "\M-u" 'zap-to-char)
+(global-set-key (kbd "M-i") 'ido-goto-symbol)
 (global-set-key (kbd "<f1>") 'nav-toggle)
 (global-set-key (kbd "<f2>") '(lambda () (interactive) (other-window -1)))
 (global-set-key (kbd "<f3>") 'switch-to-next-buffer)
