@@ -34,7 +34,6 @@
  'flymake-go
  'go-mode
  'haskell-mode
- 'icicles
  'js2-mode
  'less-css-mode
  'linum-off
