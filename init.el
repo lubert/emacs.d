@@ -10,7 +10,6 @@
 ;; ---------------------
 (add-to-list 'load-path "~/.emacs.d/lisp/")
 (load "defuns-config.el")
-(server-start)
 
 ;; --------------
 ;; -- Packages --
@@ -147,6 +146,7 @@
 (put 'upcase-region 'disabled nil)
 (setq css-indent-offset 2)
 (setq column-number-mode t)
+(setq-default indent-tabs-mode nil)
 (setq inhibit-startup-message t)
 (setq next-line-add-newlines t)
 (setq save-abbrevs nil)
