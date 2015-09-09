@@ -148,7 +148,6 @@
 (setq column-number-mode t)
 (setq-default indent-tabs-mode nil)
 (setq inhibit-startup-message t)
-(setq next-line-add-newlines t)
 (setq save-abbrevs nil)
 (setq show-trailing-whitespace t)
 (setq suggest-key-bindings t)
