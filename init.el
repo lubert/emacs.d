@@ -97,10 +97,6 @@
 (add-to-list 'load-path "~/.emacs.d/lisp/emacs-nav/")
 (require 'nav)
 
-;; paredit
-(add-hook 'js2-mode-hook 'my-paredit-nonlisp)
-(add-hook 'web-mode-hook 'my-paredit-nonlisp)
-
 ;; python-mode
 (add-hook 'python-mode-hook 'guess-style-guess-tabs-mode)
 (add-hook 'python-mode-hook (lambda ()
