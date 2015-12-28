@@ -40,7 +40,6 @@
  'magit
  'markdown-mode
  'nav
- 'paredit
  'scss-mode
  'visible-mark
  'web-mode
