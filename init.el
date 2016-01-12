@@ -43,6 +43,7 @@
  'scss-mode
  'visible-mark
  'web-mode
+ 'ws-butler
  'zenburn-theme
 )
 
