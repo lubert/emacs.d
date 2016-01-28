@@ -149,6 +149,8 @@
 (setq suggest-key-bindings t)
 (setq vc-follow-symlinks t)
 (setq require-final-newline t)
+(setq show-trailing-whitespace t)
+(ws-butler-global-mode 1)
 (global-auto-revert-mode 1)
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
