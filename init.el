@@ -137,7 +137,7 @@
 ;; -- Variables --
 ;; ---------------
 (menu-bar-mode 0) ; Disable menu bar
-(normal-erase-is-backspace-mode 1)
+(normal-erase-is-backspace-mode 0)
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
 (setq css-indent-offset 2)
@@ -152,6 +152,7 @@
 (setq show-trailing-whitespace t)
 (ws-butler-global-mode 1)
 (global-auto-revert-mode 1)
+(global-subword-mode 1)
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
 
@@ -170,8 +171,8 @@
 (global-set-key "\M-i" 'back-window)
 (global-set-key "\C-z" 'zap-to-char)
 (define-key key-translation-map [?\C-h] [?\C-?])
-(global-set-key "\M-d" 'delete-word)
-(global-set-key "\M-h" 'backward-delete-word)
+(global-set-key "\M-d" 'subword-kill)
+(global-set-key "\M-h" 'subword-backward-kill)
 (global-set-key (kbd "M-i") 'ido-goto-symbol)
 (global-set-key (kbd "<f1>") 'nav-toggle)
 (global-set-key (kbd "<f2>") 'highlight-symbol)

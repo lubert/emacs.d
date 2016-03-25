@@ -1,6 +1,6 @@
 ## Requirements
 
-* Emacs 24.3 or greater
+* Emacs 24.5 or greater
 
 ## Installation
 
