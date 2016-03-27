@@ -156,6 +156,7 @@
 (global-auto-revert-mode 1)
 (global-subword-mode 1)
 (add-hook 'after-init-hook #'global-flycheck-mode)
+(electric-pair-mode 1)
 
 
 ;; ------------
