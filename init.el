@@ -35,6 +35,7 @@
  'haskell-mode
  'highlight-symbol
  'js2-mode
+ 'json-mode
  'less-css-mode
  'linum-off
  'magit
@@ -77,6 +78,7 @@
 ;; js2-mode
 (autoload 'js2-mode "js2-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+(setq js-indent-level 2)
 (setq js2-basic-offset 2)
 (setq js2-highlight-level 3)
 
