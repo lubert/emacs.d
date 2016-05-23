@@ -28,6 +28,7 @@
  'auto-complete
  'ac-js2
  'cider
+ 'elixir-mode
  'find-file-in-repository
  'flycheck
  'flymake-go
