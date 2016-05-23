@@ -28,6 +28,8 @@
  'auto-complete
  'ac-js2
  'cider
+ 'column-enforce-mode
+ 'elixir-mode
  'find-file-in-repository
  'flycheck
  'flymake-go
@@ -61,6 +63,10 @@
 (require 'auto-complete-config)
 (ac-config-default)
 
+;; column-enforce-mode
+(require 'column-enforce-mode)
+(global-column-enforce-mode t)
+
 ;; guess-style
 (add-to-list 'load-path "~/.emacs.d/lisp/guess-style/")
 (autoload 'guess-style-set-variable "guess-style" nil t)
@@ -78,9 +84,12 @@
 ;; js2-mode
 (autoload 'js2-mode "js2-mode" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
-(setq js-indent-level 2)
 (setq js2-basic-offset 2)
 (setq js2-highlight-level 3)
+
+;; json-mode
+(add-hook 'json-mode-hook (lambda ()
+                            (setq js-indent-level 2)))
 
 ;; linum
 (require 'linum)
@@ -132,6 +141,19 @@
 (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+(defun my-web-mode-hook ()
+  "Hooks for Web mode."
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-enable-auto-pairing t)
+  (setq web-mode-enable-css-colorization t)
+  (setq web-mode-enable-current-element-highlight t)
+  (setq web-mode-ac-sources-alist
+        '(("css" . (ac-source-css-property))
+          ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
+  )
 (add-hook 'web-mode-hook 'my-web-mode-hook)
 
 
@@ -188,6 +210,43 @@
 (global-set-key "<" 'my-unindent-region)
 (global-set-key [remap find-tag] 'ido-find-tag)
 (global-set-key (kbd "C-.") 'ido-find-file-in-tag-files)
+
+
+;; -------------------
+;; -- Customization --
+;; -------------------
+
+                                        ; Makes *scratch* empty.
+(setq initial-scratch-message "")
+
+;; Removes *scratch* from buffer after the mode has been set.
+(defun remove-scratch-buffer ()
+  (if (get-buffer "*scratch*")
+      (kill-buffer "*scratch*")))
+(add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
+
+;; Removes *messages* from the buffer.
+(setq-default message-log-max nil)
+(kill-buffer "*Messages*")
+
+;; Removes *Completions* from buffer after you've opened a file.
+(add-hook 'minibuffer-exit-hook
+          '(lambda ()
+             (let ((buffer "*Completions*"))
+               (and (get-buffer buffer)
+                    (kill-buffer buffer)))))
+
+;; Don't show *Buffer list* when opening multiple files at the same time.
+(setq inhibit-startup-buffer-menu t)
+
+;; Show only one active window when opening multiple files at the same time.
+(add-hook 'window-setup-hook 'delete-other-windows)
+
+;; No more typing the whole yes or no. Just y or n will do.
+(fset 'yes-or-no-p 'y-or-n-p)
+
+;; Save desktop
+(desktop-save-mode 1)
 
 
 ;; -----------
