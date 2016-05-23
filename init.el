@@ -28,6 +28,7 @@
  'auto-complete
  'ac-js2
  'cider
+ 'column-enforce-mode
  'elixir-mode
  'find-file-in-repository
  'flycheck
@@ -61,6 +62,10 @@
 ;; autocomplete
 (require 'auto-complete-config)
 (ac-config-default)
+
+;; column-enforce-mode
+(require 'column-enforce-mode)
+(global-column-enforce-mode t)
 
 ;; guess-style
 (add-to-list 'load-path "~/.emacs.d/lisp/guess-style/")
