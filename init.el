@@ -43,6 +43,7 @@
  'magit
  'markdown-mode
  'nav
+ 'perspective
  'scss-mode
  'visible-mark
  'web-mode
@@ -215,7 +216,7 @@
 ;; -- Customization --
 ;; -------------------
 
-                                        ; Makes *scratch* empty.
+;; Makes *scratch* empty.
 (setq initial-scratch-message "")
 
 ;; Removes *scratch* from buffer after the mode has been set.
@@ -243,10 +244,6 @@
 
 ;; No more typing the whole yes or no. Just y or n will do.
 (fset 'yes-or-no-p 'y-or-n-p)
-
-;; Save desktop
-(desktop-save-mode 1)
-
 
 ;; -----------
 ;; -- Theme --
