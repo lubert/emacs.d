@@ -27,21 +27,21 @@
 (ensure-package-installed
  'auto-complete
  'ac-js2
- 'cider
+; 'cider
  'column-enforce-mode
- 'elixir-mode
+; 'elixir-mode
  'find-file-in-repository
  'flycheck
- 'flymake-go
- 'go-mode
- 'haskell-mode
+; 'flymake-go
+; 'go-mode
+; 'haskell-mode
  'highlight-symbol
  'js2-mode
  'json-mode
  'less-css-mode
  'linum-off
  'magit
- 'markdown-mode
+; 'markdown-mode
  'nav
  'perspective
  'scss-mode
@@ -78,6 +78,17 @@
 ;; etags
 (require 'etags)
 
+;; flycheck
+(require 'flycheck)
+(setq-default flycheck-temp-prefix ".flycheck")
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+    '(javascript-jshint)))
+(flycheck-add-mode 'javascript-eslint 'web-mode)
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+    '(json-jsonlist)))
+
 ;; ido
 (require 'ido)
 (ido-mode t)
@@ -87,10 +98,6 @@
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 (setq js2-basic-offset 2)
 (setq js2-highlight-level 3)
-
-;; json-mode
-(add-hook 'json-mode-hook (lambda ()
-                            (setq js-indent-level 2)))
 
 ;; linum
 (require 'linum)
@@ -168,6 +175,8 @@
 (setq css-indent-offset 2)
 (setq column-number-mode t)
 (setq-default indent-tabs-mode nil)
+(setq tab-width 2)
+(setq js-indent-level 2)
 (setq inhibit-startup-message t)
 (setq save-abbrevs nil)
 (setq show-trailing-whitespace t)
