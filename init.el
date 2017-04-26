@@ -42,6 +42,7 @@
  'linum-off
  'magit
 ; 'markdown-mode
+ 'multiple-cursors
  'nav
  'perspective
  'scss-mode
@@ -120,6 +121,13 @@
 			   (linum-mode -1)))
 
 (setq linum-format 'linum-highlight-current-line)
+
+;; multiple-cursors
+(require 'multiple-cursors)
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
 ;; nav
 (add-to-list 'load-path "~/.emacs.d/lisp/emacs-nav/")
