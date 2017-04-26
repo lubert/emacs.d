@@ -165,6 +165,8 @@
   (setq web-mode-enable-auto-pairing t)
   (setq web-mode-enable-css-colorization t)
   (setq web-mode-enable-current-element-highlight t)
+  (setq web-mode-enable-auto-closing t)
+  (setq web-mode-enable-auto-pairing t)
   (setq web-mode-ac-sources-alist
         '(("css" . (ac-source-css-property))
           ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
