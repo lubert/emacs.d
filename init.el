@@ -130,6 +130,10 @@
 (add-to-list 'load-path "~/.emacs.d/lisp/emacs-nav/")
 (require 'nav)
 
+;; perspective
+(require 'perspective)
+(persp-mode 1)
+
 ;; python-mode
 (add-hook 'python-mode-hook 'guess-style-guess-tabs-mode)
 (add-hook 'python-mode-hook (lambda ()
