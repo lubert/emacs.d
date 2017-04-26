@@ -124,10 +124,7 @@
 
 ;; multiple-cursors
 (require 'multiple-cursors)
-(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-(global-set-key (kbd "C->") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
-(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+(multiple-cursors-mode t)
 
 ;; nav
 (add-to-list 'load-path "~/.emacs.d/lisp/emacs-nav/")
@@ -236,7 +233,10 @@
 (global-set-key ">" 'my-indent-region)
 (global-set-key "<" 'my-unindent-region)
 (global-set-key [remap find-tag] 'ido-find-tag)
-(global-set-key (kbd "C-.") 'ido-find-file-in-tag-files)
+(global-set-key (kbd "C-x /") 'mc/edit-lines)
+(global-set-key (kbd "C-x .") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-x ,") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-x >") 'mc/mark-all-like-this)
 
 
 ;; -------------------
