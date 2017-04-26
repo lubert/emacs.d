@@ -194,6 +194,7 @@
 (setq inhibit-startup-message t)
 (setq save-abbrevs nil)
 (setq show-trailing-whitespace t)
+(setq sort-fold-case t)
 (setq suggest-key-bindings t)
 (setq vc-follow-symlinks t)
 (setq require-final-newline t)
@@ -271,6 +272,11 @@
 
 ;; No more typing the whole yes or no. Just y or n will do.
 (fset 'yes-or-no-p 'y-or-n-p)
+
+;; Alphabetize comma-separated lists
+(defun sort-list ()
+  (interactive)
+  (sort-regexp-fields nil "[a-z]+" "\\&" (region-beginning) (region-end)))
 
 ;; -----------
 ;; -- Theme --
