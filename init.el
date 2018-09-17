@@ -28,8 +28,8 @@
  'auto-complete
  'ac-js2
 ; 'cider
- 'column-enforce-mode
 ; 'elixir-mode
+ 'fill-column-indicator
  'find-file-in-repository
  'flycheck
 ; 'flymake-go
@@ -65,15 +65,10 @@
 ;; ac-js2
 (require 'ac-js2)
 (add-hook 'js2-mode-hook 'ac-js2-mode)
-(setq ac-js2-evaluate-calls t)
 
 ;; autocomplete
 (require 'auto-complete-config)
 (ac-config-default)
-
-;; column-enforce-mode
-(require 'column-enforce-mode)
-(global-column-enforce-mode t)
 
 ;; guess-style
 (add-to-list 'load-path "~/.emacs.d/lisp/guess-style/")
@@ -84,6 +79,18 @@
 
 ;; etags
 (require 'etags)
+
+;; fill-column-indicator
+(require 'fill-column-indicator)
+(setq fci-rule-column 80)
+(setq fci-rule-character-color "darkred")
+(define-globalized-minor-mode global-fci-mode fci-mode
+    (lambda ()
+      (if (and
+           (not (string-match "^\*.*\*$" (buffer-name)))
+           (not (eq major-mode 'dired-mode)))
+          (fci-mode 1))))
+  (global-fci-mode 1)
 
 ;; flycheck
 (require 'flycheck)
