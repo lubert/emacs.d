@@ -141,6 +141,10 @@
 
 (setq linum-format 'linum-highlight-current-line)
 
+;; magit
+(require 'magit)
+(global-set-key (kbd "C-x g") 'magit-status)
+
 ;; multiple-cursors
 (require 'multiple-cursors)
 (global-set-key (kbd "C-c m c") 'mc/edit-lines)
