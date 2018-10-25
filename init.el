@@ -38,7 +38,6 @@
  'less-css-mode
  'linum-off
  'magit
-; 'markdown-mode
  'multiple-cursors
  'nav
  'perspective
@@ -144,7 +143,10 @@
 
 ;; multiple-cursors
 (require 'multiple-cursors)
-(multiple-cursors-mode t)
+(global-set-key (kbd "C-c m c") 'mc/edit-lines)
+(global-set-key (kbd "C-c m n") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-c m p") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c m a") 'mc/mark-all-like-this)
 
 ;; nav
 (add-to-list 'load-path "~/.emacs.d/lisp/emacs-nav/")
@@ -310,3 +312,5 @@
 (provide 'init)
 
 ;;; init.el ends here
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
