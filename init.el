@@ -79,7 +79,6 @@
 (require 'fill-column-indicator)
 (setq fci-rule-column 80)
 (setq fci-rule-character-color "darkred")
-(setq fci-handle-truncate-lines nil)
 (define-globalized-minor-mode global-fci-mode fci-mode
     (lambda ()
       (if (and
