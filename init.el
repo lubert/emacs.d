@@ -25,14 +25,13 @@
 
 ; List packages to install
 (ensure-package-installed
- 'auto-complete
- 'ac-js2
- 'fill-column-indicator
  'find-file-in-repository
  'flycheck
  'go-mode
  'highlight-symbol
  'js2-mode
+ 'js2-refactor
+ 'xref-js2
  'rjsx-mode
  'json-mode
  'less-css-mode
@@ -57,46 +56,12 @@
 (add-hook 'after-save-hook (lambda ()
 			    (autocompile "~/.emacs.d/init.el")))
 
-;; ac-js2
-(require 'ac-js2)
-(add-hook 'js2-mode-hook 'ac-js2-mode)
-
-;; autocomplete
-(require 'auto-complete-config)
-(ac-config-default)
-
 ;; guess-style
 (add-to-list 'load-path "~/.emacs.d/lisp/guess-style/")
 (autoload 'guess-style-set-variable "guess-style" nil t)
 (autoload 'guess-style-guess-variable "guess-style")
 (autoload 'guess-style-guess-all "guess-style" nil t)
 (autoload 'guess-style-guess-tab-width "guess-style" nil t)
-
-;; etags
-(require 'etags)
-
-;; fill-column-indicator
-(require 'fill-column-indicator)
-(setq fci-rule-column 80)
-(setq fci-rule-character-color "darkred")
-(define-globalized-minor-mode global-fci-mode fci-mode
-    (lambda ()
-      (if (and
-           (not (string-match "^\*.*\*$" (buffer-name)))
-           (not (eq major-mode 'dired-mode)))
-          (fci-mode 1))))
-  (global-fci-mode 1)
-(defvar sanityinc/fci-mode-suppressed nil)
-(defadvice popup-create (before suppress-fci-mode activate)
-  "Suspend fci-mode while popups are visible"
-  (set (make-local-variable 'sanityinc/fci-mode-suppressed) fci-mode)
-  (when fci-mode
-    (turn-off-fci-mode)))
-(defadvice popup-delete (after restore-fci-mode activate)
-  "Restore fci-mode when all popups have closed"
-  (when (and (not popup-instances) sanityinc/fci-mode-suppressed)
-    (setq sanityinc/fci-mode-suppressed nil)
-    (turn-on-fci-mode)))
 
 ;; flycheck
 (require 'flycheck)
@@ -121,6 +86,21 @@
 (add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode))
 (setq js2-basic-offset 2)
 (setq js2-highlight-level 3)
+
+;; js2-refactor
+(require 'js2-refactor)
+(require 'xref-js2)
+
+(add-hook 'js2-mode-hook #'js2-refactor-mode)
+(js2r-add-keybindings-with-prefix "C-c C-r")
+(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+
+;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
+; unbind it.
+(define-key js-mode-map (kbd "M-.") nil)
+
+(add-hook 'js2-mode-hook (lambda ()
+  (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
 
 ;; rjsx-mode
 (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
