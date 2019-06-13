@@ -25,6 +25,7 @@
 
 ; List packages to install
 (ensure-package-installed
+ 'elpy
  'find-file-in-repository
  'flycheck
  'go-mode
@@ -54,7 +55,10 @@
 
 ;; autocompile
 (add-hook 'after-save-hook (lambda ()
-			    (autocompile "~/.emacs.d/init.el")))
+                             (autocompile "~/.emacs.d/init.el")))
+
+;; elpy
+(elpy-enable)
 
 ;; guess-style
 (add-to-list 'load-path "~/.emacs.d/lisp/guess-style/")
@@ -138,12 +142,6 @@
 ;; perspective
 (require 'perspective)
 (persp-mode 1)
-
-;; python-mode
-(add-hook 'python-mode-hook 'guess-style-guess-tabs-mode)
-(add-hook 'python-mode-hook (lambda ()
-			      (when indent-tabs-mode
-				(guess-style-guess-tab-width))))
 
 ;; recentf
 (require 'recentf)
