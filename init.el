@@ -5,189 +5,247 @@
 
 ;;; Code:
 
-;; ---------------------
-;; -- Global Settings --
-;; ---------------------
-(add-to-list 'load-path "~/.emacs.d/lisp/")
-(load "defuns-config.el")
+;; -------------------
+;; -- Configuration --
+;; -------------------
+
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(package-initialize)
+
+(eval-when-compile
+  (require 'use-package))
+
+;; ---------------
+;; -- Functions --
+;; ---------------
+
+(defvar linum-current-line 1 "Current line number.")
+(defvar linum-border-width 1 "Border width for linum.")
+(defface linum-current-line `((t :inherit linum
+                                 :foreground "goldenrod"
+                                 :weight bold))
+  "Face for displaying the current line number."
+  :group 'linum)
+
+(defadvice linum-update (before advice-linum-update activate)
+  "Set the current line."
+  (setq linum-current-line (line-number-at-pos)
+        ;; It's the same algorithm that linum dynamic. I only had added one
+        ;; space in front of the first digit.
+        linum-border-width (number-to-string
+                            (+ 1 (length
+                                  (number-to-string
+                                   (count-lines (point-min) (point-max))))))))
+
+(defun linum-highlight-current-line (line-number)
+  "Highlight the current LINE-NUMBER using `linum-current-line' face."
+  (let ((face (if (= line-number linum-current-line)
+                  'linum-current-line
+                'linum)))
+    (propertize (format (concat "%" linum-border-width "d ") line-number)
+                'face face)))
+
+(defun ido-find-tag ()
+  "Find a tag using ido"
+  (interactive)
+  (tags-completion-table)
+  (let (tag-names)
+    (mapc (lambda (x)
+            (unless (integerp x)
+              (push (prin1-to-string x t) tag-names)))
+          tags-completion-table)
+    (find-tag (ido-completing-read "Tag: " tag-names))))
+
+(defun ido-find-file-in-tag-files ()
+  (interactive)
+  (save-excursion
+    (let ((enable-recursive-minibuffers t))
+      (visit-tags-table-buffer))
+    (find-file
+     (expand-file-name
+      (ido-completing-read
+       "Project file: " (tags-table-files) nil t)))))
+
+(defun ido-goto-symbol (&optional symbol-list)
+  "Refresh imenu and jump to a place in the buffer using Ido."
+  (interactive)
+  (unless (featurep 'imenu)
+    (require 'imenu nil t))
+  (cond
+   ((not symbol-list)
+    (let ((ido-mode ido-mode)
+	  (ido-enable-flex-matching
+	   (if (boundp 'ido-enable-flex-matching)
+	       ido-enable-flex-matching t))
+	  name-and-pos symbol-names position)
+      (unless ido-mode
+	(ido-mode 1)
+	(setq ido-enable-flex-matching t))
+      (while (progn
+	       (imenu--cleanup)
+	       (setq imenu--index-alist nil)
+	       (ido-goto-symbol (imenu--make-index-alist))
+	       (setq selected-symbol
+		     (ido-completing-read "Symbol? " symbol-names))
+	       (string= (car imenu--rescan-item) selected-symbol)))
+      (unless (and (boundp 'mark-active) mark-active)
+	(push-mark nil t nil))
+      (setq position (cdr (assoc selected-symbol name-and-pos)))
+      (cond
+       ((overlayp position)
+	(goto-char (overlay-start position)))
+       (t
+	(goto-char position)))))
+   ((listp symbol-list)
+    (dolist (symbol symbol-list)
+      (let (name position)
+	(cond
+	 ((and (listp symbol) (imenu--subalist-p symbol))
+	  (ido-goto-symbol symbol))
+	 ((listp symbol)
+	  (setq name (car symbol))
+	  (setq position (cdr symbol)))
+	 ((stringp symbol)
+	  (setq name symbol)
+	  (setq position
+		(get-text-property 1 'org-imenu-marker symbol))))
+	(unless (or (null position) (null name)
+		    (string= (car imenu--rescan-item) name))
+	  (add-to-list 'symbol-names name)
+          (add-to-list 'name-and-pos (cons name position))))))))
+
+(defun vc-git-grep2 (regexp dir)
+  (interactive
+   (progn
+     (grep-compute-defaults)
+     (cond
+      ((equal current-prefix-arg '(16))
+       (list (read-from-minibuffer "Run: " "git grep" nil nil 'grep-history)
+	     nil))
+      (t (let* ((regexp (grep-read-regexp))
+		(dir (read-directory-name "In directory: " nil default-directory t)))
+	   (list regexp dir))))))
+  (require 'grep)
+  (when (and (stringp regexp) (> (length regexp) 0))
+    (let ((command regexp))
+      (if (> 4 5)
+	  (if (string= command "git grep")
+	      (setq command nil))
+	(setq dir (file-name-as-directory (expand-file-name dir)))
+	(setq command
+	      (grep-expand-template "git grep -n -i -e <R>" regexp))
+	(when command
+	  (if (equal current-prefix-arg '(4))
+	      (setq command
+		    (read-from-minibuffer "Confirm: " command nil nil 'grep-history))
+	    (add-to-history 'grep-history command))))
+      (when command
+	(let ((default-directory dir)
+	      (compilation-environment '("PAGER=")))
+	  ;; Setting process-setup-function makes exit-message-function work
+	  ;; even when async processes aren't supported.
+	  (compilation-start command 'grep-mode))
+	(if (eq next-error-last-buffer (current-buffer))
+            (setq default-directory dir))))))
+
+;; ------------
+;; -- Macros --
+;; ------------
+
+(global-set-key "\C-ct" '(lambda ()(interactive)(ansi-term "/bin/bash")))
+(define-key key-translation-map [?\C-h] [?\C-?])
+(global-set-key "\M-o" 'other-window)
+(global-set-key "\M-d" 'subword-kill)
+(global-set-key "\M-h" 'subword-backward-kill)
+(global-set-key "\C-xs" 'vc-git-grep2)
+(global-set-key [remap find-tag] 'ido-find-tag)
+(global-set-key "\M-i" 'ido-goto-symbol)
 
 ;; --------------
 ;; -- Packages --
 ;; --------------
 
-; Add repositories
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                         ("melpa" . "http://melpa.org/packages/")))
-(package-initialize)
+(use-package elpy
+  :ensure t
+  :init
+  (elpy-enable))
 
-(or (file-exists-p package-user-dir)
-    (package-refresh-contents))
+(use-package find-file-in-repository
+  :ensure t
+  :bind ("C-x f" . find-file-in-repository))
 
-; List packages to install
-(ensure-package-installed
- 'find-file-in-repository
- 'flycheck
- 'go-mode
- 'highlight-symbol
- 'js2-mode
- 'js2-refactor
- 'xref-js2
- 'rjsx-mode
- 'json-mode
- 'less-css-mode
- 'linum-off
- 'magit
- 'multiple-cursors
- 'nav
- 'perspective
- 'scss-mode
- 'visible-mark
- 'web-mode
- 'ws-butler
- 'zenburn-theme
-)
+(use-package ggtags
+  :ensure t
+  :init
+  (add-hook 'c-mode-common-hook
+            (lambda ()
+              (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+                (ggtags-mode 1))))
+  :bind (("C-c g s" . ggtags-find-other-symbol)
+         ("C-c g h" . ggtags-view-tag-history)
+         ("C-c g r" . ggtags-find-reference)
+         ("C-c g f" . ggtags-find-file)
+         ("C-c g c" . ggtags-create-tags)
+         ("C-c g u" . ggtags-update-tags)
+         ("M-," . pop-tag-mark)))
 
+(use-package highlight-symbol
+  :ensure t
+  :bind (("M-n" . highlight-symbol-next)
+         ("M-p" . highlight-symbol-prev)))
 
-;; -------------------
-;; -- Configuration --
-;; -------------------
+(use-package ido
+  :config
+  (ido-mode t))
 
-;; autocompile
-(add-hook 'after-save-hook (lambda ()
-			    (autocompile "~/.emacs.d/init.el")))
+(use-package linum
+  :init
+  (add-hook 'term-mode-hook (lambda () (linum-mode -1)))
+  (add-hook 'grep-mode-hook (lambda () (linum-mode -1)))
+  (add-hook 'nav-mode-hook (lambda () (linum-mode -1)))
+  (add-hook 'eww-mode-hook (lambda () (linum-mode -1)))
+  :config
+  (global-linum-mode 1)
+  (set-face-attribute 'linum nil :background "#303030")
+  (setq linum-format 'linum-highlight-current-line))
 
-;; guess-style
-(add-to-list 'load-path "~/.emacs.d/lisp/guess-style/")
-(autoload 'guess-style-set-variable "guess-style" nil t)
-(autoload 'guess-style-guess-variable "guess-style")
-(autoload 'guess-style-guess-all "guess-style" nil t)
-(autoload 'guess-style-guess-tab-width "guess-style" nil t)
+(use-package magit
+  :ensure t
+  :bind ("C-x g" . magit-status))
 
-;; flycheck
-(require 'flycheck)
-(setq-default flycheck-temp-prefix ".flycheck")
-(setq-default flycheck-disabled-checkers
-  (append flycheck-disabled-checkers
-    '(javascript-jshint)))
-(flycheck-add-mode 'javascript-eslint 'web-mode)
-(flycheck-add-mode 'javascript-eslint 'js2-mode)
-(flycheck-add-mode 'javascript-eslint 'rjsx-mode)
-(setq-default flycheck-disabled-checkers
-  (append flycheck-disabled-checkers
-    '(json-jsonlist)))
+(use-package nav
+  :ensure t
+  :bind ("C-x t" . nav-toggle))
 
-;; ido
-(require 'ido)
-(ido-mode t)
+(use-package recentf
+  :init
+  (setq recentf-max-menu-items 25)
+  :config
+  (recentf-mode 1)
+  :bind ("C-x C-r" . recentf-open-files))
 
-;; js2-mode
-(autoload 'js2-mode "js2-mode" nil t)
-(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
-(add-to-list 'interpreter-mode-alist '("node" . js2-jsx-mode))
-(setq js2-basic-offset 2)
-(setq js2-highlight-level 3)
+(use-package uniquify
+  :init
+  (setq uniquify-after-kill-buffer-p t) ; rename after killing uniquified
+  (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
+  (setq uniquify-buffer-name-style 'reverse)
+  (setq uniquify-separator "/"))
 
-;; js2-refactor
-(require 'js2-refactor)
-(require 'xref-js2)
+(use-package visible-mark
+  :ensure t
+  :config
+  (global-visible-mark-mode 1))
 
-(add-hook 'js2-mode-hook #'js2-refactor-mode)
-(js2r-add-keybindings-with-prefix "C-c C-r")
-(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+(use-package ws-butler
+  :ensure t
+  :config
+  (ws-butler-global-mode 1))
 
-;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
-; unbind it.
-(define-key js-mode-map (kbd "M-.") nil)
-
-(add-hook 'js2-mode-hook (lambda ()
-  (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
-
-;; rjsx-mode
-(add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
-(add-to-list 'auto-mode-alist '("containers\\/.*\\.js\\'" . rjsx-mode))
-
-;; linum
-(require 'linum)
-(global-linum-mode 1)
-(add-hook 'term-mode-hook (lambda ()
-			    (linum-mode -1)))
-(add-hook 'grep-mode-hook (lambda ()
-			    (linum-mode -1)))
-(add-hook 'nav-mode-hook (lambda ()
-			   (linum-mode -1)))
-(add-hook 'eww-mode-hook (lambda ()
-			   (linum-mode -1)))
-
-(setq linum-format 'linum-highlight-current-line)
-
-;; magit
-(require 'magit)
-(global-set-key (kbd "C-x g") 'magit-status)
-
-;; multiple-cursors
-(require 'multiple-cursors)
-(global-set-key (kbd "C-c m c") 'mc/edit-lines)
-(global-set-key (kbd "C-c m n") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-c m p") 'mc/mark-previous-like-this)
-(global-set-key (kbd "C-c m a") 'mc/mark-all-like-this)
-
-;; nav
-(add-to-list 'load-path "~/.emacs.d/lisp/emacs-nav/")
-(require 'nav)
-
-;; perspective
-(require 'perspective)
-(persp-mode 1)
-
-;; python-mode
-(add-hook 'python-mode-hook 'guess-style-guess-tabs-mode)
-(add-hook 'python-mode-hook (lambda ()
-			      (when indent-tabs-mode
-				(guess-style-guess-tab-width))))
-
-;; recentf
-(require 'recentf)
-(recentf-mode 1)
-(setq recentf-max-menu-items 25)
-
-;; uniquify
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'reverse)
-(setq uniquify-separator "/")
-(setq uniquify-after-kill-buffer-p t) ; rename after killing uniquified
-(setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
-
-;; visible-mark
-(require 'visible-mark)
-(global-visible-mark-mode 1)
-
-;; web-mode
-(autoload 'web-mode "web-mode" nil t)
-(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.handlebars\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
-(add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-(defun my-web-mode-hook ()
-  "Hooks for Web mode."
-  (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-css-indent-offset 2)
-  (setq web-mode-code-indent-offset 2)
-  (setq web-mode-enable-auto-pairing t)
-  (setq web-mode-enable-css-colorization t)
-  (setq web-mode-enable-current-element-highlight t)
-  (setq web-mode-enable-auto-closing t)
-  (setq web-mode-enable-auto-pairing t)
-  (setq web-mode-ac-sources-alist
-        '(("css" . (ac-source-css-property))
-          ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
-  )
-(add-hook 'web-mode-hook 'my-web-mode-hook)
-
+(use-package zenburn-theme
+  :ensure t
+  :config
+  (load-theme 'zenburn t))
 
 ;; ---------------
 ;; -- Variables --
@@ -196,11 +254,9 @@
 (normal-erase-is-backspace-mode 0)
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
-(setq css-indent-offset 2)
 (setq column-number-mode t)
 (setq-default indent-tabs-mode nil)
 (setq tab-width 2)
-(setq js-indent-level 2)
 (setq inhibit-startup-message t)
 (setq save-abbrevs nil)
 (setq show-trailing-whitespace t)
@@ -208,57 +264,24 @@
 (setq suggest-key-bindings t)
 (setq vc-follow-symlinks t)
 (setq require-final-newline t)
-(setq show-trailing-whitespace t)
-(ws-butler-global-mode 1)
+
 (global-auto-revert-mode 1)
 (global-subword-mode 1)
-(add-hook 'after-init-hook #'global-flycheck-mode)
 (electric-pair-mode 1)
-(setq backup-directory-alist `(("." . "~/.saves")))
-
-
-;; ------------
-;; -- Macros --
-;; ------------
-(fset 'align-equals "\C-[xalign-regex\C-m=\C-m")
-(global-set-key "\M-=" 'align-equals)
-(global-set-key "\C-x\C-m" 'execute-extended-command)
-(global-set-key "\C-x\ \C-r" 'recentf-open-files)
-(global-set-key "\C-c\ \C-c" 'comment-or-uncomment-region)
-(global-set-key "\C-ct" '(lambda ()(interactive)(ansi-term "/bin/bash")))
-(global-set-key "\M-n" 'highlight-symbol-next)
-(global-set-key "\M-p" 'highlight-symbol-prev)
-(global-set-key "\M-o" 'other-window)
-(global-set-key "\M-i" 'back-window)
-(global-set-key "\C-z" 'zap-to-char)
-(define-key key-translation-map [?\C-h] [?\C-?])
-(global-set-key "\M-d" 'subword-kill)
-(global-set-key "\M-h" 'subword-backward-kill)
-(global-set-key (kbd "M-i") 'ido-goto-symbol)
-(global-set-key (kbd "C-x t") 'nav-toggle)
-(global-set-key (kbd "C-x f") 'find-file-in-repository)
-(global-set-key (kbd "C-x s") 'vc-git-grep2)
-(global-set-key ">" 'my-indent-region)
-(global-set-key "<" 'my-unindent-region)
-(global-set-key [remap find-tag] 'ido-find-tag)
-(global-set-key (kbd "C-x /") 'mc/edit-lines)
-(global-set-key (kbd "C-x .") 'mc/mark-next-like-this)
-(global-set-key (kbd "C-x ,") 'mc/mark-previous-like-this)
-(global-set-key (kbd "C-x >") 'mc/mark-all-like-this)
-
+(setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+      backup-by-copying t    ; Don't delink hardlinks
+      version-control t      ; Use version numbers on backups
+      delete-old-versions t  ; Automatically delete excess backups
+      kept-new-versions 20   ; how many of the newest versions to keep
+      kept-old-versions 5    ; and how many of the old
+      )
 
 ;; -------------------
 ;; -- Customization --
 ;; -------------------
 
-;; Makes *scratch* empty.
+;; ;; Makes *scratch* empty.
 (setq initial-scratch-message "")
-
-;; Removes *scratch* from buffer after the mode has been set.
-(defun remove-scratch-buffer ()
-  (if (get-buffer "*scratch*")
-      (kill-buffer "*scratch*")))
-(add-hook 'after-change-major-mode-hook 'remove-scratch-buffer)
 
 ;; Removes *messages* from the buffer.
 (setq-default message-log-max nil)
@@ -280,20 +303,19 @@
 ;; No more typing the whole yes or no. Just y or n will do.
 (fset 'yes-or-no-p 'y-or-n-p)
 
-;; Alphabetize comma-separated lists
-(defun sort-list ()
-  (interactive)
-  (sort-regexp-fields nil "[a-z]+" "\\&" (region-beginning) (region-end)))
-
-;; -----------
-;; -- Theme --
-;; -----------
-(load-theme 'zenburn t)
-(set-face-attribute 'linum nil :background "#303030")
-
-
 (provide 'init)
-
 ;;; init.el ends here
-(setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (visible-mark nav magit highlight-symbol ggtags find-file-in-repository elpy use-package))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
