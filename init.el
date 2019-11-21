@@ -161,6 +161,8 @@
 (global-set-key "\C-xs" 'vc-git-grep2)
 (global-set-key [remap find-tag] 'ido-find-tag)
 (global-set-key "\M-i" 'ido-goto-symbol)
+(autoload 'zap-up-to-char "misc" 'interactive)
+(global-set-key "\M-z" 'zap-up-to-char)
 
 ;; --------------
 ;; -- Packages --
@@ -312,7 +314,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (visible-mark nav magit highlight-symbol ggtags find-file-in-repository elpy use-package))))
+    (pug-mode web-mode markdown-mode perspective visible-mark nav magit highlight-symbol ggtags find-file-in-repository elpy use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
