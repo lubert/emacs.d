@@ -187,22 +187,18 @@
 
 (use-package company-irony
   :ensure t
+  :after (company irony)
   :init
   (add-to-list 'company-backends 'company-irony))
 
 (use-package company-irony-c-headers
   :ensure t
+  :after (company irony company-irony)
   :init
   (add-to-list 'company-backends 'company-irony-c-headers))
 
 (use-package dumb-jump
-  :ensure t
-  :bind (("M-g o" . dumb-jump-go-other-window)
-         ("M-g j" . dumb-jump-go)
-         ("M-g b" . dumb-jump-back)
-         ("M-g i" . dumb-jump-go-prompt)
-         ("M-g x" . dumb-jump-go-prefer-external)
-         ("M-g z" . dumb-jump-go-prefer-external-other-window)))
+  :ensure t)
 
 (use-package elpy
   :ensure t
@@ -220,29 +216,31 @@
 
 (use-package flycheck-irony
   :ensure t
+  :after (flycheck)
   :init
   (eval-after-load 'flycheck
   '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
-
-(use-package ggtags
-  :ensure t
-  :init
-  (add-hook 'c-mode-common-hook
-            (lambda ()
-              (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
-                (ggtags-mode 1))))
-  :bind (("C-c g s" . ggtags-find-other-symbol)
-         ("C-c g h" . ggtags-view-tag-history)
-         ("C-c g r" . ggtags-find-reference)
-         ("C-c g f" . ggtags-find-file)
-         ("C-c g c" . ggtags-create-tags)
-         ("C-c g u" . ggtags-update-tags)
-         ("M-," . pop-tag-mark)))
 
 (use-package highlight-symbol
   :ensure t
   :bind (("M-n" . highlight-symbol-next)
          ("M-p" . highlight-symbol-prev)))
+
+(use-package hydra
+  :after (dumb-jump)
+  :demand t
+  :bind (("M-g" . dumb-jump-hydra/body))
+  :init
+  (defhydra dumb-jump-hydra (:color blue :columns 3)
+    "Dumb Jump"
+    ("j" dumb-jump-go "Go")
+    ("o" dumb-jump-go-other-window "Other window")
+    ("e" dumb-jump-go-prefer-external "Go external")
+    ("x" dumb-jump-go-prefer-external-other-window "Go external other window")
+    ("i" dumb-jump-go-prompt "Prompt")
+    ("l" dumb-jump-quick-look "Quick look")
+    ("b" dumb-jump-back "Back"))
+  :ensure t)
 
 (use-package ido
   :config
@@ -250,6 +248,7 @@
 
 (use-package irony-eldoc
   :ensure t
+  :after (irony)
   :init
   (add-hook 'irony-mode-hook #'irony-eldoc))
 
@@ -366,7 +365,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (pug-mode web-mode markdown-mode perspective visible-mark nav magit highlight-symbol ggtags find-file-in-repository elpy use-package))))
+    (pug-mode web-mode markdown-mode perspective visible-mark nav magit highlight-symbol find-file-in-repository elpy use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
