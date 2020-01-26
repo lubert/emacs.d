@@ -177,12 +177,6 @@
   :init
   (add-hook 'after-init-hook 'global-company-mode))
 
-(use-package company-irony
-  :ensure t
-  :init
-  (eval-after-load 'company
-  '(add-to-list 'company-backends 'company-irony)))
-
 (use-package irony
   :ensure t
   :init
@@ -190,6 +184,16 @@
   (add-hook 'c-mode-hook 'irony-mode)
   (add-hook 'objc-mode-hook 'irony-mode)
   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+
+(use-package company-irony
+  :ensure t
+  :init
+  (add-to-list 'company-backends 'company-irony))
+
+(use-package company-irony-c-headers
+  :ensure t
+  :init
+  (add-to-list 'company-backends 'company-irony-c-headers))
 
 (use-package elpy
   :ensure t
