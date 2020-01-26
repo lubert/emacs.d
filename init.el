@@ -200,6 +200,17 @@
   :ensure t
   :bind ("C-x f" . find-file-in-repository))
 
+(use-package flycheck
+  :ensure t
+  :init
+  (global-flycheck-mode))
+
+(use-package flycheck-irony
+  :ensure t
+  :init
+  (eval-after-load 'flycheck
+  '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
+
 (use-package ggtags
   :ensure t
   :init
@@ -223,6 +234,11 @@
 (use-package ido
   :config
   (ido-mode t))
+
+(use-package irony-eldoc
+  :ensure t
+  :init
+  (add-hook 'irony-mode-hook #'irony-eldoc))
 
 (use-package linum
   :init
