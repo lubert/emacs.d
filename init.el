@@ -13,6 +13,10 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (package-initialize)
 
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
 (eval-when-compile
   (require 'use-package))
 
@@ -167,6 +171,25 @@
 ;; --------------
 ;; -- Packages --
 ;; --------------
+
+(use-package company
+  :ensure t
+  :init
+  (add-hook 'after-init-hook 'global-company-mode))
+
+(use-package company-irony
+  :ensure t
+  :init
+  (eval-after-load 'company
+  '(add-to-list 'company-backends 'company-irony)))
+
+(use-package irony
+  :ensure t
+  :init
+  (add-hook 'c++-mode-hook 'irony-mode)
+  (add-hook 'c-mode-hook 'irony-mode)
+  (add-hook 'objc-mode-hook 'irony-mode)
+  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
 
 (use-package elpy
   :ensure t
