@@ -278,6 +278,14 @@
   (recentf-mode 1)
   :bind ("C-x C-r" . recentf-open-files))
 
+(use-package smex
+  :init
+  (smex-initialize)
+  :bind (("M-x" . smex)
+         ("M-X" . smex-major-mode-commands)
+         ("C-c C-c M-x" . execute-extended-command))
+  :ensure t)
+
 (use-package uniquify
   :init
   (setq uniquify-after-kill-buffer-p t) ; rename after killing uniquified
