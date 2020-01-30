@@ -1,4 +1,4 @@
-;;; init.el --- emacs configuration settings
+;; init.el --- emacs configuration settings
 
 ;;; Commentary:
 ;; Sane defaults and uses repositories as much as possible
@@ -271,6 +271,11 @@
   :ensure t
   :bind ("C-x t" . nav-toggle))
 
+(use-package perspective
+  :init
+  (persp-mode)
+  :ensure t)
+
 (use-package recentf
   :init
   (setq recentf-max-menu-items 25)
@@ -297,11 +302,6 @@
   :ensure t
   :config
   (global-visible-mark-mode 1))
-
-(use-package workgroups2
-  :init
-  (workgroups-mode 1)
-  :ensure t)
 
 (use-package ws-butler
   :ensure t
