@@ -323,7 +323,6 @@
 ;; -- Variables --
 ;; ---------------
 (menu-bar-mode 0) ; Disable menu bar
-(normal-erase-is-backspace-mode 0)
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
 (setq column-number-mode t)
