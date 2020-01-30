@@ -298,6 +298,11 @@
   :config
   (global-visible-mark-mode 1))
 
+(use-package workgroups2
+  :init
+  (workgroups-mode 1)
+  :ensure t)
+
 (use-package ws-butler
   :ensure t
   :config
@@ -307,6 +312,12 @@
   :ensure t
   :config
   (load-theme 'zenburn t))
+
+(use-package zoom
+  :config
+  (custom-set-variables
+   '(zoom-ignored-major-modes '(nav-mode)))
+  :ensure t)
 
 ;; ---------------
 ;; -- Variables --
@@ -373,7 +384,8 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (pug-mode web-mode markdown-mode perspective visible-mark nav magit highlight-symbol find-file-in-repository elpy use-package))))
+    (zoom zenburn-theme ws-butler visible-mark use-package smex nav magit irony-eldoc hydra highlight-symbol flycheck-irony find-file-in-repository elpy dumb-jump company-irony-c-headers company-irony)))
+ '(zoom-ignored-major-modes (quote (nav-mode))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
