@@ -50,109 +50,6 @@
     (propertize (format (concat "%" linum-border-width "d ") line-number)
                 'face face)))
 
-(defun ido-find-tag ()
-  "Find a tag using ido"
-  (interactive)
-  (tags-completion-table)
-  (let (tag-names)
-    (mapc (lambda (x)
-            (unless (integerp x)
-              (push (prin1-to-string x t) tag-names)))
-          tags-completion-table)
-    (find-tag (ido-completing-read "Tag: " tag-names))))
-
-(defun ido-find-file-in-tag-files ()
-  (interactive)
-  (save-excursion
-    (let ((enable-recursive-minibuffers t))
-      (visit-tags-table-buffer))
-    (find-file
-     (expand-file-name
-      (ido-completing-read
-       "Project file: " (tags-table-files) nil t)))))
-
-(defun ido-goto-symbol (&optional symbol-list)
-  "Refresh imenu and jump to a place in the buffer using Ido."
-  (interactive)
-  (unless (featurep 'imenu)
-    (require 'imenu nil t))
-  (cond
-   ((not symbol-list)
-    (let ((ido-mode ido-mode)
-	  (ido-enable-flex-matching
-	   (if (boundp 'ido-enable-flex-matching)
-	       ido-enable-flex-matching t))
-	  name-and-pos symbol-names position)
-      (unless ido-mode
-	(ido-mode 1)
-	(setq ido-enable-flex-matching t))
-      (while (progn
-	       (imenu--cleanup)
-	       (setq imenu--index-alist nil)
-	       (ido-goto-symbol (imenu--make-index-alist))
-	       (setq selected-symbol
-		     (ido-completing-read "Symbol? " symbol-names))
-	       (string= (car imenu--rescan-item) selected-symbol)))
-      (unless (and (boundp 'mark-active) mark-active)
-	(push-mark nil t nil))
-      (setq position (cdr (assoc selected-symbol name-and-pos)))
-      (cond
-       ((overlayp position)
-	(goto-char (overlay-start position)))
-       (t
-	(goto-char position)))))
-   ((listp symbol-list)
-    (dolist (symbol symbol-list)
-      (let (name position)
-	(cond
-	 ((and (listp symbol) (imenu--subalist-p symbol))
-	  (ido-goto-symbol symbol))
-	 ((listp symbol)
-	  (setq name (car symbol))
-	  (setq position (cdr symbol)))
-	 ((stringp symbol)
-	  (setq name symbol)
-	  (setq position
-		(get-text-property 1 'org-imenu-marker symbol))))
-	(unless (or (null position) (null name)
-		    (string= (car imenu--rescan-item) name))
-	  (add-to-list 'symbol-names name)
-          (add-to-list 'name-and-pos (cons name position))))))))
-
-(defun vc-git-grep2 (regexp dir)
-  (interactive
-   (progn
-     (grep-compute-defaults)
-     (cond
-      ((equal current-prefix-arg '(16))
-       (list (read-from-minibuffer "Run: " "git grep" nil nil 'grep-history)
-	     nil))
-      (t (let* ((regexp (grep-read-regexp))
-		(dir (read-directory-name "In directory: " nil default-directory t)))
-	   (list regexp dir))))))
-  (require 'grep)
-  (when (and (stringp regexp) (> (length regexp) 0))
-    (let ((command regexp))
-      (if (> 4 5)
-	  (if (string= command "git grep")
-	      (setq command nil))
-	(setq dir (file-name-as-directory (expand-file-name dir)))
-	(setq command
-	      (grep-expand-template "git grep -n -i -e <R>" regexp))
-	(when command
-	  (if (equal current-prefix-arg '(4))
-	      (setq command
-		    (read-from-minibuffer "Confirm: " command nil nil 'grep-history))
-	    (add-to-history 'grep-history command))))
-      (when command
-	(let ((default-directory dir)
-	      (compilation-environment '("PAGER=")))
-	  ;; Setting process-setup-function makes exit-message-function work
-	  ;; even when async processes aren't supported.
-	  (compilation-start command 'grep-mode))
-	(if (eq next-error-last-buffer (current-buffer))
-            (setq default-directory dir))))))
-
 ;; ------------
 ;; -- Macros --
 ;; ------------
@@ -162,9 +59,6 @@
 (global-set-key "\M-o" 'other-window)
 (global-set-key "\M-d" 'subword-kill)
 (global-set-key "\M-h" 'subword-backward-kill)
-(global-set-key "\C-xs" 'vc-git-grep2)
-(global-set-key [remap find-tag] 'ido-find-tag)
-(global-set-key "\M-i" 'ido-goto-symbol)
 (autoload 'zap-up-to-char "misc" 'interactive)
 (global-set-key "\M-z" 'zap-up-to-char)
 
@@ -197,6 +91,14 @@
   :init
   (add-to-list 'company-backends 'company-irony-c-headers))
 
+(use-package counsel
+  :init
+  (counsel-mode 1)
+  :ensure t)
+
+(use-package docker-compose-mode
+  :ensure t)
+
 (use-package dumb-jump
   :ensure t)
 
@@ -204,10 +106,6 @@
   :ensure t
   :init
   (elpy-enable))
-
-(use-package find-file-in-repository
-  :ensure t
-  :bind ("C-x f" . find-file-in-repository))
 
 (use-package flycheck
   :ensure t
@@ -242,10 +140,6 @@
     ("b" dumb-jump-back "Back"))
   :ensure t)
 
-(use-package ido
-  :config
-  (ido-mode t))
-
 (use-package irony-eldoc
   :ensure t
   :after (irony)
@@ -274,6 +168,17 @@
 (use-package perspective
   :init
   (persp-mode)
+  :ensure t)
+
+(use-package projectile
+  :init
+  (projectile-mode +1)
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (setq projectile-enable-caching t)
+  (setq projectile-indexing-method 'alien)
+  (setq projectile-completion-system 'ivy)
+  :bind (("C-x f" . projectile-find-file) )
   :ensure t)
 
 (use-package recentf
@@ -376,18 +281,3 @@
 
 (provide 'init)
 ;;; init.el ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (zoom zenburn-theme ws-butler visible-mark use-package smex nav magit irony-eldoc hydra highlight-symbol flycheck-irony find-file-in-repository elpy dumb-jump company-irony-c-headers company-irony)))
- '(zoom-ignored-major-modes (quote (nav-mode))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
