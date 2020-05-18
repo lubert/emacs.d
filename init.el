@@ -146,6 +146,12 @@
   :init
   (add-hook 'irony-mode-hook #'irony-eldoc))
 
+(use-package ivy
+  :init
+  (setq ivy-re-builders-alist
+        '((t . ivy--regex-plus)))
+  :ensure t)
+
 (use-package linum
   :init
   (add-hook 'term-mode-hook (lambda () (linum-mode -1)))
