@@ -127,6 +127,7 @@
   (add-to-list 'company-backends 'company-irony-c-headers))
 
 (use-package counsel
+  :after (ivy)
   :init
   (counsel-mode 1)
   :ensure t)
@@ -229,6 +230,11 @@
   :config
   (recentf-mode 1)
   :bind ("C-x C-r" . recentf-open-files))
+
+(use-package ruby-mode
+  :init
+  (setq ruby-insert-encoding-magic-comment nil)
+  :ensure t)
 
 (use-package smex
   :init
