@@ -123,6 +123,12 @@
   :init
   (add-to-list 'company-backends 'company-irony-c-headers))
 
+(use-package company-prescient
+  :after (company prescient)
+  :init
+  (company-prescient-mode 1)
+  :ensure t)
+
 (use-package counsel
   :after (ivy)
   :init
@@ -187,6 +193,12 @@
   (ivy-mode 1)
   :ensure t)
 
+(use-package ivy-prescient
+  :after (counsel prescient)
+  :init
+  (ivy-prescient-mode 1)
+  :ensure t)
+
 (use-package linum
   :init
   (add-hook 'term-mode-hook (lambda () (linum-mode -1)))
@@ -214,6 +226,9 @@
 (use-package perspective
   :init
   (persp-mode)
+  :ensure t)
+
+(use-package prescient
   :ensure t)
 
 (use-package projectile
