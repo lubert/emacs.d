@@ -10,3 +10,6 @@ session*
 elpy
 smex-items
 transient
+custom.el
+irony
+projectile*
