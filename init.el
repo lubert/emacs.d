@@ -8,6 +8,14 @@
 ;; -------------------
 ;; -- Configuration --
 ;; -------------------
+; Temporarily suppress gc
+(setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
+      gc-cons-percentage 0.6)
+(add-hook 'emacs-startup-hook
+  (lambda ()
+    (setq gc-cons-threshold 16777216 ; 16mb
+          gc-cons-percentage 0.1)))
+
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (package-initialize)
@@ -47,6 +55,8 @@
       kept-new-versions 6    ; how many of the newest versions to keep
       kept-old-versions 2    ; and how many of the old
       )
+(defconst IS-MAC     (eq system-type 'darwin))
+(defconst IS-LINUX   (eq system-type 'gnu/linux))
 
 ;; ------------
 ;; -- Macros --
@@ -58,6 +68,90 @@
 (global-set-key "\M-z" 'zap-up-to-char)
 (global-set-key "\C-xs" 'vc-git-grep)
 (autoload 'zap-up-to-char "misc" 'interactive)
+
+(defun doom-unquote (exp)
+  "Return EXP unquoted."
+  (declare (pure t) (side-effect-free t))
+  (while (memq (car-safe exp) '(quote function))
+    (setq exp (cadr exp)))
+  exp)
+
+(defun doom-enlist (exp)
+  "Return EXP wrapped in a list, or as-is if already a list."
+  (declare (pure t) (side-effect-free t))
+  (if (listp exp) exp (list exp)))
+
+(defun doom--resolve-hook-forms (hooks)
+  "Converts a list of modes into a list of hook symbols.
+If a mode is quoted, it is left as is. If the entire HOOKS list is quoted, the
+list is returned as-is."
+  (declare (pure t) (side-effect-free t))
+  (let ((hook-list (doom-enlist (doom-unquote hooks))))
+    (if (eq (car-safe hooks) 'quote)
+        hook-list
+      (cl-loop for hook in hook-list
+               if (eq (car-safe hook) 'quote)
+               collect (cadr hook)
+               else collect (intern (format "%s-hook" (symbol-name hook)))))))
+
+(defmacro add-hook! (hooks &rest rest)
+  "A convenience macro for adding N functions to M hooks.
+
+This macro accepts, in order:
+
+  1. The mode(s) or hook(s) to add to. This is either an unquoted mode, an
+     unquoted list of modes, a quoted hook variable or a quoted list of hook
+     variables.
+  2. Optional properties :local and/or :append, which will make the hook
+     buffer-local or append to the list of hooks (respectively),
+  3. The function(s) to be added: this can be one function, a quoted list
+     thereof, a list of `defun's, or body forms (implicitly wrapped in a
+     lambda).
+\(fn HOOKS [:append :local] FUNCTIONS)"
+
+  (declare (indent (lambda (indent-point state)
+                     (goto-char indent-point)
+                     (when (looking-at-p "\\s-*(")
+                       (lisp-indent-defform state indent-point))))
+           (debug t))
+  (let* ((hook-forms (doom--resolve-hook-forms hooks))
+         (func-forms ())
+         (defn-forms ())
+         append-p
+         local-p
+         remove-p
+         forms)
+    (while (keywordp (car rest))
+      (pcase (pop rest)
+        (:append (setq append-p t))
+        (:local  (setq local-p t))
+        (:remove (setq remove-p t))))
+    (let ((first (car-safe (car rest))))
+      (cond ((null first)
+             (setq func-forms rest))
+
+            ((eq first 'defun)
+             (setq func-forms (mapcar #'cadr rest)
+                   defn-forms rest))
+
+            ((memq first '(quote function))
+             (setq func-forms
+                   (if (cdr rest)
+                       (mapcar #'doom-unquote rest)
+                     (doom-enlist (doom-unquote (car rest))))))
+
+            ((setq func-forms (list `(lambda (&rest _) ,@rest)))))
+      (dolist (hook hook-forms)
+        (dolist (func func-forms)
+          (push (if remove-p
+                    `(remove-hook ',hook #',func ,local-p)
+                  `(add-hook ',hook #',func ,append-p ,local-p))
+                forms)))
+      (macroexp-progn
+       (append defn-forms
+               (if append-p
+                   (nreverse forms)
+                 forms))))))
 
 ;; --------------
 ;; -- Packages --
@@ -130,6 +224,9 @@
 (use-package highlight-symbol
   :bind (("M-n" . highlight-symbol-next)
          ("M-p" . highlight-symbol-prev))
+  :ensure)
+
+(use-package gcmh
   :ensure)
 
 (use-package hydra
@@ -240,6 +337,86 @@
 (use-package zenburn-theme
   :config (load-theme 'zenburn t)
   :ensure)
+
+;; ------------------
+;; -- Optimization --
+;; ------------------
+
+;; Disable bidirectional text rendering for a modest performance boost. I've set
+;; this to `nil' in the past, but the `bidi-display-reordering's docs say that
+;; is an undefined state and suggest this to be just as good:
+(setq-default bidi-display-reordering 'left-to-right
+              bidi-paragraph-direction 'left-to-right)
+
+;; Reduce rendering/line scan work for Emacs by not rendering cursors or regions
+;; in non-focused windows.
+(setq-default cursor-in-non-selected-windows nil)
+(setq highlight-nonselected-windows nil)
+
+;; More performant rapid scrolling over unfontified regions. May cause brief
+;; spells of inaccurate syntax highlighting right after scrolling, which should
+;; quickly self-correct.
+(setq fast-but-imprecise-scrolling t)
+
+;; Resizing the Emacs frame can be a terribly expensive part of changing the
+;; font. By inhibiting this, we halve startup times, particularly when we use
+;; fonts that are larger than the system default (which would resize the frame).
+(setq frame-inhibit-implied-resize t)
+
+;; Don't ping things that look like domain names.
+(setq ffap-machine-p-known 'reject)
+
+;; Font compacting can be terribly expensive, especially for rendering icon
+;; fonts on Windows. Whether it has a notable affect on Linux and Mac hasn't
+;; been determined, but we inhibit it there anyway.
+(setq inhibit-compacting-font-caches t)
+
+;; Remove command line options that aren't relevant to our current OS; means
+;; slightly less to process at startup.
+(unless IS-MAC   (setq command-line-ns-option-alist nil))
+(unless IS-LINUX (setq command-line-x-option-alist nil))
+
+;; Delete files to trash on macOS, as an extra layer of precaution against
+;; accidentally deleting wanted files.
+(setq delete-by-moving-to-trash IS-MAC)
+
+;; Adopt a sneaky garbage collection strategy of waiting until idle time to
+;; collect; staving off the collector while the user is working.
+(setq gcmh-idle-delay 5
+      gcmh-high-cons-threshold 16777216  ; 16mb
+      gc-cons-percentage 0.6)
+(with-eval-after-load 'gcmh
+  ;; But restore this later, otherwise we risk freezing and stuttering!
+  (setq gc-cons-percentage 0.1))
+
+;; HACK `tty-run-terminal-initialization' is *tremendously* slow for some
+;;      reason. Disabling it completely could have many side-effects, so we
+;;      defer it until later, at which time it (somehow) runs very quickly.
+(unless (daemonp)
+  (advice-add #'tty-run-terminal-initialization :override #'ignore)
+  (add-hook! 'window-setup-hook
+    (defun doom-init-tty-h ()
+      (advice-remove #'tty-run-terminal-initialization #'ignore)
+      (tty-run-terminal-initialization (selected-frame) nil t))))
+
+;;
+;;; MODE-local-vars-hook
+
+;; File+dir local variables are initialized after the major mode and its hooks
+;; have run. If you want hook functions to be aware of these customizations, add
+;; them to MODE-local-vars-hook instead.
+(defun doom-run-local-var-hooks-h ()
+  "Run MODE-local-vars-hook after local variables are initialized."
+  (run-hook-wrapped (intern-soft (format "%s-local-vars-hook" major-mode))
+                    #'doom-try-run-hook))
+
+;; If the user has disabled `enable-local-variables', then
+;; `hack-local-variables-hook' is never triggered, so we trigger it at the end
+;; of `after-change-major-mode-hook':
+(defun doom-run-local-var-hooks-maybe-h ()
+  "Run `doom-run-local-var-hooks-h' if `enable-local-variables' is disabled."
+  (unless enable-local-variables
+    (doom-run-local-var-hooks-h)))
 
 ;; -------------------
 ;; -- Customization --
