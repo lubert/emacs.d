@@ -8,7 +8,6 @@
 ;; -------------------
 ;; -- Configuration --
 ;; -------------------
-
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (package-initialize)
@@ -204,6 +203,11 @@
   :ensure t
   :bind ("C-x g" . magit-status))
 
+(use-package mood-line
+  :init
+  (mood-line-mode)
+  :ensure t)
+
 (use-package nav
   :ensure t
   :bind ("C-x t" . nav-toggle))
@@ -306,10 +310,6 @@
 
 ;; ;; Makes *scratch* empty.
 (setq initial-scratch-message "")
-
-;; Removes *messages* from the buffer.
-(setq-default message-log-max nil)
-(kill-buffer "*Messages*")
 
 ;; Removes *Completions* from buffer after you've opened a file.
 (add-hook 'minibuffer-exit-hook
