@@ -13,3 +13,4 @@ transient
 custom.el
 irony
 projectile*
+.cache
