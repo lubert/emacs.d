@@ -86,8 +86,6 @@
 ;; ------------
 ;; -- Macros --
 ;; ------------
-
-(global-set-key "\C-ct" '(lambda ()(interactive)(ansi-term "/bin/bash")))
 (define-key key-translation-map [?\C-h] [?\C-?])
 (global-set-key "\M-o" 'other-window)
 (global-set-key "\M-d" 'subword-kill)
@@ -135,12 +133,13 @@
   :ensure t)
 
 (use-package dumb-jump
+  :config (setq dumb-jump-selector 'ivy)
   :ensure t)
 
 (use-package elpy
-  :ensure t
-  :init
-  (elpy-enable))
+  :init (with-eval-after-load 'python (elpy-enable))
+  :commands elpy-enable
+  :ensure t)
 
 (use-package flycheck
   :ensure t
@@ -296,6 +295,7 @@
 (global-auto-revert-mode 1)
 (global-subword-mode 1)
 (electric-pair-mode 1)
+(electric-indent-mode 1)
 (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
       backup-by-copying t    ; Don't delink hardlinks
       version-control t      ; Use version numbers on backups
