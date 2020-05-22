@@ -389,35 +389,6 @@ This macro accepts, in order:
   ;; But restore this later, otherwise we risk freezing and stuttering!
   (setq gc-cons-percentage 0.1))
 
-;; HACK `tty-run-terminal-initialization' is *tremendously* slow for some
-;;      reason. Disabling it completely could have many side-effects, so we
-;;      defer it until later, at which time it (somehow) runs very quickly.
-(unless (daemonp)
-  (advice-add #'tty-run-terminal-initialization :override #'ignore)
-  (add-hook! 'window-setup-hook
-    (defun doom-init-tty-h ()
-      (advice-remove #'tty-run-terminal-initialization #'ignore)
-      (tty-run-terminal-initialization (selected-frame) nil t))))
-
-;;
-;;; MODE-local-vars-hook
-
-;; File+dir local variables are initialized after the major mode and its hooks
-;; have run. If you want hook functions to be aware of these customizations, add
-;; them to MODE-local-vars-hook instead.
-(defun doom-run-local-var-hooks-h ()
-  "Run MODE-local-vars-hook after local variables are initialized."
-  (run-hook-wrapped (intern-soft (format "%s-local-vars-hook" major-mode))
-                    #'doom-try-run-hook))
-
-;; If the user has disabled `enable-local-variables', then
-;; `hack-local-variables-hook' is never triggered, so we trigger it at the end
-;; of `after-change-major-mode-hook':
-(defun doom-run-local-var-hooks-maybe-h ()
-  "Run `doom-run-local-var-hooks-h' if `enable-local-variables' is disabled."
-  (unless enable-local-variables
-    (doom-run-local-var-hooks-h)))
-
 ;; -------------------
 ;; -- Customization --
 ;; -------------------
