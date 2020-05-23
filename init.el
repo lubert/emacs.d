@@ -259,13 +259,14 @@ This macro accepts, in order:
   :ensure)
 
 (use-package ivy
-  :init (setq ivy-re-builders-alist '((t . ivy--regex-plus)))
-  :config (ivy-mode 1)
+  :config
+  (setq ivy-re-builders-alist '((t . ivy--regex-plus)))
+  (ivy-mode 1)
   :ensure)
 
 (use-package ivy-prescient
   :after (counsel prescient)
-  :init (ivy-prescient-mode 1)
+  :config (ivy-prescient-mode 1)
   :ensure)
 
 (use-package magit
