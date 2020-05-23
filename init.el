@@ -208,9 +208,10 @@ This macro accepts, in order:
   :ensure)
 
 (use-package elpy
-  :init (with-eval-after-load 'python (elpy-enable))
-  :commands elpy-enable
-  :ensure)
+  :ensure t
+  :defer t
+  :init
+  (advice-add 'python-mode :before 'elpy-enable))
 
 (use-package flycheck
   :config (global-flycheck-mode)
