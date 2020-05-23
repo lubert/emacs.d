@@ -158,7 +158,7 @@ This macro accepts, in order:
 ;; --------------
 
 (use-package company
-  :init (add-hook 'after-init-hook 'global-company-mode)
+  :hook (after-init . global-company-mode)
   :ensure)
 
 (use-package company-irony
