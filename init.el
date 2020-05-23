@@ -214,12 +214,12 @@ This macro accepts, in order:
   (advice-add 'python-mode :before 'elpy-enable))
 
 (use-package flycheck
-  :config (global-flycheck-mode)
+  :hook (prog-mode . flycheck-mode)
   :ensure)
 
 (use-package flycheck-irony
   :after (flycheck)
-  :init (eval-after-load 'flycheck '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+  :hook (flycheck-mode . flycheck-irony-setup)
   :ensure)
 
 (use-package highlight-symbol
@@ -247,16 +247,15 @@ This macro accepts, in order:
   :ensure)
 
 (use-package irony
-  :init
-  (add-hook 'c++-mode-hook 'irony-mode)
-  (add-hook 'c-mode-hook 'irony-mode)
-  (add-hook 'objc-mode-hook 'irony-mode)
-  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+  :hook ((c++-mode . irony-mode)
+         (c-mode . irony-mode)
+         (objc-mode . irony-mode)
+         (irony-mode . irony-cdb-autosetup-compile-options))
   :ensure)
 
 (use-package irony-eldoc
   :after (irony)
-  :init (add-hook 'irony-mode-hook #'irony-eldoc)
+  :hook (irony-mode . irony-eldoc)
   :ensure)
 
 (use-package ivy
