@@ -43,6 +43,7 @@
 (setq suggest-key-bindings t)
 (setq vc-follow-symlinks t)
 (setq require-final-newline t)
+(setq read-process-output-max (* 1024 1024))
 
 (global-auto-revert-mode 1)
 (global-subword-mode 1)
@@ -223,7 +224,7 @@ This macro accepts, in order:
   :ensure)
 
 (use-package flycheck-irony
-  :after (flycheck)
+  :after (flycheck irony)
   :hook (flycheck-mode . flycheck-irony-setup)
   :ensure)
 
@@ -280,6 +281,7 @@ This macro accepts, in order:
 
 (use-package lsp-mode
   :hook (js2-mode . lsp-deferred)
+  :commands (lsp lsp-deferred)
   :ensure)
 
 (use-package magit
@@ -359,6 +361,12 @@ This macro accepts, in order:
 
 (use-package ws-butler
   :config (ws-butler-global-mode 1)
+  :ensure)
+
+(use-package yasnippet
+  :config
+  (yas-reload-all)
+  :hook (prog-mode . yas-minor-mode)
   :ensure)
 
 (use-package zenburn-theme
