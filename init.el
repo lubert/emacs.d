@@ -163,12 +163,17 @@ This macro accepts, in order:
 
 (use-package company-irony
   :after (company irony)
-  :init (add-to-list 'company-backends 'company-irony)
+  :config (add-to-list 'company-backends 'company-irony)
   :ensure)
 
 (use-package company-irony-c-headers
   :after (company irony company-irony)
-  :init (add-to-list 'company-backends 'company-irony-c-headers)
+  :config (add-to-list 'company-backends 'company-irony-c-headers)
+  :ensure)
+
+(use-package company-lsp
+  :after (company lsp-mode)
+  :config (add-to-list 'company-backends 'company-lsp)
   :ensure)
 
 (use-package company-prescient
@@ -208,10 +213,10 @@ This macro accepts, in order:
   :ensure)
 
 (use-package elpy
-  :ensure t
   :defer t
   :init
-  (advice-add 'python-mode :before 'elpy-enable))
+  (advice-add 'python-mode :before 'elpy-enable)
+  :ensure)
 
 (use-package flycheck
   :hook (prog-mode . flycheck-mode)
@@ -269,6 +274,14 @@ This macro accepts, in order:
   :config (ivy-prescient-mode 1)
   :ensure)
 
+(use-package js2-mode
+  :mode "\\.js\\'"
+  :ensure)
+
+(use-package lsp-mode
+  :hook (js2-mode . lsp-deferred)
+  :ensure)
+
 (use-package magit
   :bind ("C-x g" . magit-status)
   :ensure)
@@ -311,6 +324,12 @@ This macro accepts, in order:
   (setq recentf-max-menu-items 25)
   (recentf-mode 1)
   :bind ("C-x C-r" . recentf-open-files))
+
+(use-package rjsx-mode
+  :mode "\\.jsx\\'"
+  :config
+  (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
+  :ensure)
 
 (use-package ruby-mode
   :config (setq ruby-insert-encoding-magic-comment nil)
