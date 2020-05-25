@@ -321,16 +321,9 @@ This macro accepts, in order:
   :bind ("C-x f" . projectile-find-file)
   :ensure)
 
-(use-package recentf
-  :config
-  (setq recentf-max-menu-items 25)
-  (recentf-mode 1)
-  :bind ("C-x C-r" . recentf-open-files))
-
 (use-package rjsx-mode
-  :mode "\\.jsx\\'"
-  :config
-  (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
+  :mode (("\\.jsx\\'" . rjsx-mode)
+         ("components\\/.*\\.js\\'" . rjsx-mode))
   :ensure)
 
 (use-package ruby-mode
