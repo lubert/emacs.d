@@ -273,6 +273,13 @@ This macro accepts, in order:
   :bind ("C-x g" . magit-status)
   :ensure)
 
+(use-package markdown-mode
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :config (setq markdown-command "multimarkdown")
+  :ensure)
+
 (use-package mood-line
   :config (mood-line-mode)
   :ensure)
