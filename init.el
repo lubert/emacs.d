@@ -359,6 +359,17 @@ This macro accepts, in order:
   :config (global-visible-mark-mode 1)
   :ensure)
 
+(use-package web-mode
+  :mode (("\\.phtml\\'" . web-mode)
+         ("\\.tpl\\.php\\'" . web-mode)
+         ("\\.[agj]sp\\'" . web-mode)
+         ("\\.as[cp]x\\'" . web-mode)
+         ("\\.erb\\'" . web-mode)
+         ("\\.handlebars\\'" . web-mode)
+         ("\\.mustache\\'" . web-mode)
+         ("\\.djhtml\\'" . web-mode))
+  :ensure)
+
 (use-package ws-butler
   :config (ws-butler-global-mode 1)
   :ensure)
