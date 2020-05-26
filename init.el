@@ -342,6 +342,7 @@ This macro accepts, in order:
   :ensure)
 
 (use-package terraform-mode
+  :mode "\\.tf\\'"
   :ensure)
 
 (use-package uniquify
