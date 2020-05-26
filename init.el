@@ -341,6 +341,9 @@ This macro accepts, in order:
   :bind ("C-s" . counsel-grep-or-swiper)
   :ensure)
 
+(use-package terraform-mode
+  :ensure)
+
 (use-package uniquify
   :config
   (setq uniquify-after-kill-buffer-p t) ; rename after killing uniquified
