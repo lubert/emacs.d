@@ -159,6 +159,11 @@ This macro accepts, in order:
 ;; --------------
 
 (use-package company
+  :config
+  (company-idle-delay .1)
+  (company-minimum-prefix-length 2)
+  (company-show-numbers t)
+  (company-tooltip-align-annotations 't)
   :hook (after-init . global-company-mode)
   :ensure)
 
@@ -184,10 +189,9 @@ This macro accepts, in order:
 
 (use-package counsel
   :after (ivy)
-  :config
-  (setq counsel-grep-base-command
-        "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
-  (counsel-mode 1)
+  :custom
+  (counsel-grep-base-command "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
+  :config (counsel-mode 1)
   :ensure)
 
 (use-package display-line-numbers
@@ -211,12 +215,12 @@ This macro accepts, in order:
 
 (use-package dumb-jump
   :config (setq dumb-jump-selector 'ivy)
+  :hook (prog-mode . dumb-jump-mode)
   :ensure)
 
 (use-package elpy
-  :defer t
-  :init
-  (advice-add 'python-mode :before 'elpy-enable)
+  :defer
+  :init (advice-add 'python-mode :before 'elpy-enable)
   :ensure)
 
 (use-package flycheck
@@ -237,19 +241,40 @@ This macro accepts, in order:
   :ensure)
 
 (use-package hydra
-  :after (dumb-jump)
-  :demand t
-  :bind (("M-g" . dumb-jump-hydra/body))
-  :init
+  :bind (("C-c j" . dumb-jump-hydra/body)
+         ("C-c m" . magit-hydra/body)
+         ("C-c p" . projectile-hydra/body))
+  :config
   (defhydra dumb-jump-hydra (:color blue :columns 3)
-    "Dumb Jump"
-    ("j" dumb-jump-go "Go")
-    ("o" dumb-jump-go-other-window "Other window")
-    ("e" dumb-jump-go-prefer-external "Go external")
-    ("x" dumb-jump-go-prefer-external-other-window "Go external other window")
-    ("i" dumb-jump-go-prompt "Prompt")
-    ("l" dumb-jump-quick-look "Quick look")
-    ("b" dumb-jump-back "Back"))
+     "Dumb Jump"
+     ("j" dumb-jump-go "Go")
+     ("o" dumb-jump-go-other-window "Other window")
+     ("e" dumb-jump-go-prefer-external "Go external")
+     ("x" dumb-jump-go-prefer-external-other-window "Go external other window")
+     ("i" dumb-jump-go-prompt "Prompt")
+     ("l" dumb-jump-quick-look "Quick look")
+     ("b" dumb-jump-back "Back"))
+   (defhydra magit-hydra (:color blue :columns 3)
+     "Magit"
+     ("b" magit-blame-addition "blame")
+     ("c" magit-clone "clone")
+     ("i" magit-init "init")
+     ("l" magit-log-buffer-file "commit log (current file)")
+     ("L" magit-log-current "commit log (project)")
+     ("s" magit-status "status"))
+   (defhydra projectile-hydra (:color blue :columns 3)
+     "Projectile"
+     ("b" counsel-projectile-switch-to-buffer "list")
+     ("k" projectile-kill-buffers "kill all")
+     ("S" projectile-save-project-buffers "save all")
+     ("d" counsel-projectile-find-dir "directory")
+     ("D" projectile-dired "root")
+     ("f" counsel-projectile-find-file "file")
+     ("p" counsel-projectile-switch-project "project")
+     ("i" projectile-invalidate-cache "reset cache")
+     ("r" projectile-replace "replace")
+     ("R" projectile-replace-regexp "regexp replace")
+     ("s" counsel-rg "search"))
   :ensure)
 
 (use-package irony
@@ -285,14 +310,14 @@ This macro accepts, in order:
   :ensure)
 
 (use-package magit
-  :bind ("C-x g" . magit-status)
+  :defer
   :ensure)
 
 (use-package markdown-mode
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
-  :config (setq markdown-command "multimarkdown")
+  :custom (markdown-command "multimarkdown")
   :ensure)
 
 (use-package mood-line
@@ -314,10 +339,11 @@ This macro accepts, in order:
   :config
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (setq projectile-enable-caching t)
-  (setq projectile-indexing-method 'alien)
-  (setq projectile-completion-system 'ivy)
-  (projectile-mode +1)
+  :custom
+  (projectile-enable-caching t)
+  (projectile-indexing-method 'alien)
+  (projectile-completion-system 'ivy)
+  :config (projectile-mode +1)
   :bind ("C-x f" . projectile-find-file)
   :ensure)
 
@@ -333,7 +359,7 @@ This macro accepts, in order:
   :ensure)
 
 (use-package ruby-mode
-  :config (setq ruby-insert-encoding-magic-comment nil))
+  :custom (ruby-insert-encoding-magic-comment nil))
 
 (use-package smex
   :bind (("M-x" . smex)
@@ -351,11 +377,11 @@ This macro accepts, in order:
   :ensure)
 
 (use-package uniquify
-  :config
-  (setq uniquify-after-kill-buffer-p t) ; rename after killing uniquified
-  (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
-  (setq uniquify-buffer-name-style 'reverse)
-  (setq uniquify-separator "/"))
+  :custom
+  (uniquify-after-kill-buffer-p t) ; rename after killing uniquified
+  (uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
+  (uniquify-buffer-name-style 'reverse)
+  (uniquify-separator "/"))
 
 (use-package visible-mark
   :config (global-visible-mark-mode 1)
