@@ -27,28 +27,39 @@
 (eval-when-compile
   (require 'use-package))
 
-;; ---------------
-;; -- Variables --
-;; ---------------
-(menu-bar-mode 0) ; Disable menu bar
-(put 'downcase-region 'disabled nil)
-(put 'upcase-region 'disabled nil)
-(setq column-number-mode t)
-(setq-default indent-tabs-mode nil)
-(setq tab-width 2)
-(setq inhibit-startup-message t)
-(setq save-abbrevs nil)
-(setq show-trailing-whitespace t)
-(defvar sort-fold-case t)
-(setq suggest-key-bindings t)
-(setq vc-follow-symlinks t)
-(setq require-final-newline t)
-(defvar read-process-output-max (* 1024 1024))
+;; -----------
+;; -- Modes --
+;; -----------
 
+(column-number-mode 1)
+(electric-indent-mode 1)
+(electric-pair-mode 1)
 (global-auto-revert-mode 1)
 (global-subword-mode 1)
-(electric-pair-mode 1)
-(electric-indent-mode 1)
+(menu-bar-mode 0)
+
+;; -------------------
+;; -- Customization --
+;; -------------------
+
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+
+(defconst IS-MAC     (eq system-type 'darwin))
+(defconst IS-LINUX   (eq system-type 'gnu/linux))
+(defvar read-process-output-max (* 1024 1024))
+(defvar sort-fold-case t)
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
+(setq inhibit-startup-buffer-menu t)
+(setq inhibit-startup-message t)
+(setq initial-scratch-message "")
+(setq require-final-newline t)
+(setq save-abbrevs nil)
+(setq show-trailing-whitespace t)
+(setq suggest-key-bindings t)
+(setq tab-width 2)
+(setq vc-follow-symlinks t)
 (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
       backup-by-copying t    ; Don't delink hardlinks
       version-control t      ; Use version numbers on backups
@@ -56,8 +67,9 @@
       kept-new-versions 6    ; how many of the newest versions to keep
       kept-old-versions 2    ; and how many of the old
       )
-(defconst IS-MAC     (eq system-type 'darwin))
-(defconst IS-LINUX   (eq system-type 'gnu/linux))
+(setq-default indent-tabs-mode nil)
+
+(fset 'yes-or-no-p 'y-or-n-p)
 
 ;; ------------
 ;; -- Macros --
@@ -185,6 +197,10 @@ list is returned as-is."
 (use-package highlight-symbol
   :bind (("M-n" . highlight-symbol-next)
          ("M-p" . highlight-symbol-prev))
+  :ensure)
+
+(use-package highlight-parentheses
+  :config (global-highlight-parentheses-mode 1)
   :ensure)
 
 (use-package gcmh
@@ -426,32 +442,6 @@ list is returned as-is."
 (with-eval-after-load 'gcmh
   ;; But restore this later, otherwise we risk freezing and stuttering!
   (setq gc-cons-percentage 0.1))
-
-;; -------------------
-;; -- Customization --
-;; -------------------
-
-(setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
-
-;; Makes *scratch* empty.
-(setq initial-scratch-message "")
-
-;; Removes *Completions* from buffer after you've opened a file.
-(add-hook 'minibuffer-exit-hook
-          '(lambda ()
-             (let ((buffer "*Completions*"))
-               (and (get-buffer buffer)
-                    (kill-buffer buffer)))))
-
-;; Don't show *Buffer list* when opening multiple files at the same time.
-(setq inhibit-startup-buffer-menu t)
-
-;; Show only one active window when opening multiple files at the same time.
-(add-hook 'window-setup-hook 'delete-other-windows)
-
-;; No more typing the whole yes or no. Just y or n will do.
-(fset 'yes-or-no-p 'y-or-n-p)
 
 (provide 'init)
 ;;; init.el ends here
