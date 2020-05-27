@@ -39,11 +39,11 @@
 (setq inhibit-startup-message t)
 (setq save-abbrevs nil)
 (setq show-trailing-whitespace t)
-(setq sort-fold-case t)
+(defvar sort-fold-case t)
 (setq suggest-key-bindings t)
 (setq vc-follow-symlinks t)
 (setq require-final-newline t)
-(setq read-process-output-max (* 1024 1024))
+(defvar read-process-output-max (* 1024 1024))
 
 (global-auto-revert-mode 1)
 (global-subword-mode 1)
@@ -84,7 +84,7 @@
 
 (defun doom--resolve-hook-forms (hooks)
   "Converts a list of modes into a list of hook symbols.
-If a mode is quoted, it is left as is. If the entire HOOKS list is quoted, the
+If a mode is quoted, it is left as is.  If the entire HOOKS list is quoted, the
 list is returned as-is."
   (declare (pure t) (side-effect-free t))
   (let ((hook-list (doom-enlist (doom-unquote hooks))))
@@ -95,71 +95,12 @@ list is returned as-is."
                collect (cadr hook)
                else collect (intern (format "%s-hook" (symbol-name hook)))))))
 
-(defmacro add-hook! (hooks &rest rest)
-  "A convenience macro for adding N functions to M hooks.
-
-This macro accepts, in order:
-
-  1. The mode(s) or hook(s) to add to. This is either an unquoted mode, an
-     unquoted list of modes, a quoted hook variable or a quoted list of hook
-     variables.
-  2. Optional properties :local and/or :append, which will make the hook
-     buffer-local or append to the list of hooks (respectively),
-  3. The function(s) to be added: this can be one function, a quoted list
-     thereof, a list of `defun's, or body forms (implicitly wrapped in a
-     lambda).
-\(fn HOOKS [:append :local] FUNCTIONS)"
-
-  (declare (indent (lambda (indent-point state)
-                     (goto-char indent-point)
-                     (when (looking-at-p "\\s-*(")
-                       (lisp-indent-defform state indent-point))))
-           (debug t))
-  (let* ((hook-forms (doom--resolve-hook-forms hooks))
-         (func-forms ())
-         (defn-forms ())
-         append-p
-         local-p
-         remove-p
-         forms)
-    (while (keywordp (car rest))
-      (pcase (pop rest)
-        (:append (setq append-p t))
-        (:local  (setq local-p t))
-        (:remove (setq remove-p t))))
-    (let ((first (car-safe (car rest))))
-      (cond ((null first)
-             (setq func-forms rest))
-
-            ((eq first 'defun)
-             (setq func-forms (mapcar #'cadr rest)
-                   defn-forms rest))
-
-            ((memq first '(quote function))
-             (setq func-forms
-                   (if (cdr rest)
-                       (mapcar #'doom-unquote rest)
-                     (doom-enlist (doom-unquote (car rest))))))
-
-            ((setq func-forms (list `(lambda (&rest _) ,@rest)))))
-      (dolist (hook hook-forms)
-        (dolist (func func-forms)
-          (push (if remove-p
-                    `(remove-hook ',hook #',func ,local-p)
-                  `(add-hook ',hook #',func ,append-p ,local-p))
-                forms)))
-      (macroexp-progn
-       (append defn-forms
-               (if append-p
-                   (nreverse forms)
-                 forms))))))
-
 ;; --------------
 ;; -- Packages --
 ;; --------------
 
 (use-package company
-  :config
+  :custom
   (company-idle-delay .1)
   (company-minimum-prefix-length 2)
   (company-show-numbers t)
@@ -194,6 +135,15 @@ This macro accepts, in order:
   :config (counsel-mode 1)
   :ensure)
 
+(use-package counsel-projectile
+  :after (counsel)
+  :commands
+  counsel-projectile-switch-to-buffer
+  counsel-projectile-find-dir
+  counsel-projectile-find-file
+  counsel-projectile-switch-project
+  :ensure)
+
 (use-package display-line-numbers
   :config
   (defun display-line-numbers--turn-on ()
@@ -214,7 +164,7 @@ This macro accepts, in order:
   :ensure)
 
 (use-package dumb-jump
-  :config (setq dumb-jump-selector 'ivy)
+  :custom (dumb-jump-selector 'ivy)
   :hook (prog-mode . dumb-jump-mode)
   :ensure)
 
@@ -244,6 +194,12 @@ This macro accepts, in order:
   :bind (("C-c j" . dumb-jump-hydra/body)
          ("C-c m" . magit-hydra/body)
          ("C-c p" . projectile-hydra/body))
+  :commands
+  hydra-default-pre
+  hydra-keyboard-quit
+  hydra--call-interactively-remap-maybe
+  hydra-show-hint
+  hydra-set-transient-map
   :config
   (defhydra dumb-jump-hydra (:color blue :columns 3)
      "Dumb Jump"
@@ -290,9 +246,8 @@ This macro accepts, in order:
   :ensure)
 
 (use-package ivy
-  :config
-  (setq ivy-re-builders-alist '((t . ivy--regex-plus)))
-  (ivy-mode 1)
+  :custom (ivy-re-builders-alist '((t . ivy--regex-plus)))
+  :config (ivy-mode 1)
   :ensure)
 
 (use-package ivy-prescient
@@ -403,8 +358,8 @@ This macro accepts, in order:
   :ensure)
 
 (use-package yasnippet
-  :config
-  (yas-reload-all)
+  :commands yas-reload-all
+  :config (yas-reload-all)
   :hook (prog-mode . yas-minor-mode)
   :ensure)
 
@@ -438,7 +393,7 @@ This macro accepts, in order:
 (setq frame-inhibit-implied-resize t)
 
 ;; Don't ping things that look like domain names.
-(setq ffap-machine-p-known 'reject)
+(defvar ffap-machine-p-known 'reject)
 
 ;; Font compacting can be terribly expensive, especially for rendering icon
 ;; fonts on Windows. Whether it has a notable affect on Linux and Mac hasn't
