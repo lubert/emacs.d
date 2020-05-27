@@ -5,9 +5,9 @@
 
 ;;; Code:
 
-;; -------------------
-;; -- Configuration --
-;; -------------------
+;; ----------
+;; -- Init --
+;; ----------
 ; Temporarily suppress gc
 (setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
       gc-cons-percentage 0.6)
@@ -37,6 +37,16 @@
 (global-auto-revert-mode 1)
 (global-subword-mode 1)
 (menu-bar-mode 0)
+
+;; Removes *Completions* from buffer after you've opened a file.
+(add-hook 'minibuffer-exit-hook
+          '(lambda ()
+             (let ((buffer "*Completions*"))
+               (and (get-buffer buffer)
+                    (kill-buffer buffer)))))
+
+;; Show only one active window when opening multiple files at the same time.
+(add-hook 'window-setup-hook 'delete-other-windows)
 
 ;; -------------------
 ;; -- Customization --
@@ -74,6 +84,7 @@
 ;; ------------
 ;; -- Macros --
 ;; ------------
+
 (define-key key-translation-map [?\C-h] [?\C-?])
 (global-set-key "\M-o" 'other-window)
 (global-set-key "\M-d" 'subword-kill)
