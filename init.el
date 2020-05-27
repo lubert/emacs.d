@@ -363,6 +363,7 @@ list is returned as-is."
   :ensure)
 
 (use-package yasnippet
+  :commands yas--get-snippet-tables
   :config (yas-global-mode)
   :hook (yas-minor-mode . my/disable-yas-if-no-snippets)
   :preface
