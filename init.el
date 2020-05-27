@@ -326,9 +326,14 @@ This macro accepts, in order:
          ("components\\/.*\\.js\\'" . rjsx-mode))
   :ensure)
 
-(use-package ruby-mode
-  :config (setq ruby-insert-encoding-magic-comment nil)
+(use-package robe
+  :after (company ruby-mode)
+  :hook (ruby-mode . robe-mode)
+  :config (push 'company-robe company-backends)
   :ensure)
+
+(use-package ruby-mode
+  :config (setq ruby-insert-encoding-magic-comment nil))
 
 (use-package smex
   :bind (("M-x" . smex)
