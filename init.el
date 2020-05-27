@@ -357,10 +357,18 @@ list is returned as-is."
   :config (ws-butler-global-mode 1)
   :ensure)
 
+(use-package yasnippet-snippets
+  :after yasnippet
+  :config (yasnippet-snippets-initialize)
+  :ensure)
+
 (use-package yasnippet
-  :commands yas-reload-all
-  :config (yas-reload-all)
-  :hook (prog-mode . yas-minor-mode)
+  :config (yas-global-mode)
+  :hook (yas-minor-mode . my/disable-yas-if-no-snippets)
+  :preface
+  (defun my/disable-yas-if-no-snippets ()
+    (when (and yas-minor-mode (null (yas--get-snippet-tables)))
+      (yas-minor-mode -1)))
   :ensure)
 
 (use-package zenburn-theme
