@@ -157,9 +157,10 @@ list is returned as-is."
 
 (use-package company
   :custom
-  (company-idle-delay .1)
-  (company-minimum-prefix-length 2)
+  (company-idle-delay 0)
+  (company-minimum-prefix-length 1)
   (company-show-numbers t)
+  (company-selection-wrap-around t)
   (company-tooltip-align-annotations 't)
   :hook (after-init . global-company-mode)
   :ensure)
