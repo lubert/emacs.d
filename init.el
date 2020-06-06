@@ -320,8 +320,8 @@ list is returned as-is."
   :ensure)
 
 (use-package lsp-mode
-  :hook (js2-mode . lsp-deferred)
-  :commands (lsp lsp-deferred)
+  :hook (prog-mode . lsp)
+  :commands (lsp)
   :ensure)
 
 (use-package magit
