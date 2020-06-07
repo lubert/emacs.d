@@ -175,11 +175,6 @@ list is returned as-is."
   :config (add-to-list 'company-backends 'company-irony-c-headers)
   :ensure)
 
-(use-package company-lsp
-  :after (company lsp-mode)
-  :config (add-to-list 'company-backends 'company-lsp)
-  :ensure)
-
 (use-package company-prescient
   :after (company prescient)
   :config (company-prescient-mode 1)
@@ -223,6 +218,12 @@ list is returned as-is."
 (use-package dumb-jump
   :custom (dumb-jump-selector 'ivy)
   :hook (prog-mode . dumb-jump-mode)
+  :ensure)
+
+(use-package eglot
+  :after (company yasnippet)
+  :hook
+  (python-mode . eglot-ensure)
   :ensure)
 
 (use-package elpy
@@ -318,11 +319,6 @@ list is returned as-is."
 
 (use-package js2-mode
   :mode "\\.js\\'"
-  :ensure)
-
-(use-package lsp-mode
-  :hook (prog-mode . lsp)
-  :commands (lsp)
   :ensure)
 
 (use-package magit
