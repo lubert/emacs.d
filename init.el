@@ -157,7 +157,7 @@ list is returned as-is."
 
 (use-package company
   :custom
-  (company-idle-delay 0)
+  (company-idle-delay 0.1)
   (company-minimum-prefix-length 1)
   (company-show-numbers t)
   (company-selection-wrap-around t)
@@ -224,6 +224,7 @@ list is returned as-is."
   :after (company yasnippet)
   :hook
   (python-mode . eglot-ensure)
+  (ruby-mode . eglot-ensure)
   :ensure)
 
 (use-package elpy
@@ -393,6 +394,7 @@ list is returned as-is."
   :hook ((typescript-mode . tide-setup)
          (typescript-mode . tide-hl-identifier-mode)
          (before-save . tide-format-before-save))
+  :config (flycheck-add-mode 'typescript-tslint 'web-mode)
   :ensure)
 
 (use-package uniquify
@@ -407,6 +409,9 @@ list is returned as-is."
   :ensure)
 
 (use-package web-mode
+  :hook (web-mode . (lambda ()
+                      (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                        (setup-tide-mode))))
   :mode (("\\.phtml\\'" . web-mode)
          ("\\.tpl\\.php\\'" . web-mode)
          ("\\.[agj]sp\\'" . web-mode)
@@ -414,6 +419,7 @@ list is returned as-is."
          ("\\.erb\\'" . web-mode)
          ("\\.handlebars\\'" . web-mode)
          ("\\.mustache\\'" . web-mode)
+         ("\\.tsx\\'" . web-mode)
          ("\\.djhtml\\'" . web-mode))
   :ensure)
 
