@@ -70,13 +70,7 @@
 (setq suggest-key-bindings t)
 (setq tab-width 2)
 (setq vc-follow-symlinks t)
-(setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
-      backup-by-copying t    ; Don't delink hardlinks
-      version-control t      ; Use version numbers on backups
-      delete-old-versions t  ; Automatically delete excess backups
-      kept-new-versions 6    ; how many of the newest versions to keep
-      kept-old-versions 2    ; and how many of the old
-      )
+(setq make-backup-files nil)
 (setq-default indent-tabs-mode nil)
 
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -84,39 +78,6 @@
 ;; ------------
 ;; -- Macros --
 ;; ------------
-(defun vc-git-grep2 (regexp dir)
-  (interactive
-   (progn
-     (grep-compute-defaults)
-     (cond
-      ((equal current-prefix-arg '(16))
-       (list (read-from-minibuffer "Run: " "git grep" nil nil 'grep-history)
-    nil))
-      (t (let* ((regexp (grep-read-regexp))
-    (dir (read-directory-name "In directory: " nil default-directory t)))
-     (list regexp dir))))))
-  (require 'grep)
-  (when (and (stringp regexp) (> (length regexp) 0))
-    (let ((command regexp))
-      (if (> 4 5)
-    (if (string= command "git grep")
-     (setq command nil))
-  (setq dir (file-name-as-directory (expand-file-name dir)))
-  (setq command
-     (grep-expand-template "git grep -n -i -e <R>" regexp))
-  (when command
-    (if (equal current-prefix-arg '(4))
-     (setq command
-     (read-from-minibuffer "Confirm: " command nil nil 'grep-history))
-   (add-to-history 'grep-history command))))
-      (when command
-  (let ((default-directory dir)
-     (compilation-environment '("PAGER=")))
-    ;; Setting process-setup-function makes exit-message-function work
-    ;; even when async processes aren't supported.
-    (compilation-start command 'grep-mode))
-  (if (eq next-error-last-buffer (current-buffer))
-   (setq default-directory dir))))))
 
 (defun doom-unquote (exp)
   "Return EXP unquoted."
@@ -148,7 +109,6 @@ list is returned as-is."
 (global-set-key "\M-d" 'subword-kill)
 (global-set-key "\M-h" 'subword-backward-kill)
 (global-set-key "\M-z" 'zap-up-to-char)
-(global-set-key "\C-xs" 'vc-git-grep2)
 (autoload 'zap-up-to-char "misc" 'interactive)
 
 ;; --------------
@@ -189,11 +149,17 @@ list is returned as-is."
 
 (use-package counsel-projectile
   :after (counsel)
+  :config
+  (defun my-git-grep ()
+    "Search the project for the word under cursor"
+    (interactive)
+    (counsel-projectile-git-grep (thing-at-point 'symbol)))
   :commands
   counsel-projectile-switch-to-buffer
   counsel-projectile-find-dir
   counsel-projectile-find-file
   counsel-projectile-switch-project
+  :bind ("C-x s" . my-git-grep)
   :ensure)
 
 (use-package display-line-numbers
@@ -411,7 +377,7 @@ list is returned as-is."
 (use-package web-mode
   :hook (web-mode . (lambda ()
                       (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                        (setup-tide-mode))))
+                        (tide-setup))))
   :mode (("\\.phtml\\'" . web-mode)
          ("\\.tpl\\.php\\'" . web-mode)
          ("\\.[agj]sp\\'" . web-mode)
