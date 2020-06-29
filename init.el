@@ -135,11 +135,6 @@ list is returned as-is."
   :config (add-to-list 'company-backends 'company-irony-c-headers)
   :ensure)
 
-(use-package company-prescient
-  :after (company prescient)
-  :config (company-prescient-mode 1)
-  :ensure)
-
 (use-package counsel
   :after (ivy)
   :custom
@@ -150,16 +145,40 @@ list is returned as-is."
 (use-package counsel-projectile
   :after (counsel)
   :config
-  (defun my-git-grep ()
-    "Search the project for the word under cursor"
+  (defun my-counsel-projectile-rg (&optional options)
     (interactive)
-    (counsel-projectile-rg (thing-at-point 'symbol)))
+    (if (and (eq projectile-require-project-root 'prompt)
+             (not (projectile-project-p)))
+        (counsel-projectile-rg-action-switch-project)
+      (let* ((ivy--actions-list (copy-sequence ivy--actions-list))
+             (ignored
+              (mapconcat (lambda (i)
+                           (concat "--glob !" (shell-quote-argument i)))
+                         (append
+                          (projectile--globally-ignored-file-suffixes-glob)
+                          (projectile-ignored-files-rel)
+                          (projectile-ignored-directories-rel))
+                         " "))
+             (counsel-rg-base-command
+              (let ((counsel-ag-command counsel-rg-base-command))
+                (counsel--format-ag-command ignored "%s"))))
+        (ivy-add-actions
+         'counsel-rg
+         counsel-projectile-rg-extra-actions)
+        (counsel-rg (eval counsel-projectile-rg-initial-input)
+                    (read-directory-name "In directory: " nil default-directory t)
+                    options
+                    (projectile-prepend-project-name
+                     (concat (car (if (listp counsel-rg-base-command)
+                                      counsel-rg-base-command
+                                    (split-string counsel-rg-base-command)))
+                             ": "))))))
   :commands
   counsel-projectile-switch-to-buffer
   counsel-projectile-find-dir
   counsel-projectile-find-file
   counsel-projectile-switch-project
-  :bind (("C-x s" . my-git-grep)
+  :bind (("C-x s" . my-counsel-projectile-rg)
          ("C-x b" . counsel-projectile-switch-to-buffer))
   :ensure)
 
@@ -293,11 +312,6 @@ list is returned as-is."
 (use-package ivy
   :custom (ivy-re-builders-alist '((t . ivy--regex-plus)))
   :config (ivy-mode 1)
-  :ensure)
-
-(use-package ivy-prescient
-  :after (counsel prescient)
-  :config (ivy-prescient-mode 1)
   :ensure)
 
 (use-package js2-mode
