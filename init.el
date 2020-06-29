@@ -92,7 +92,7 @@
   (if (listp exp) exp (list exp)))
 
 (defun doom--resolve-hook-forms (hooks)
-  "Converts a list of modes into a list of hook symbols.
+  "Convert a list of modes into a list of hook symbols.
 If a mode is quoted, it is left as is.  If the entire HOOKS list is quoted, the
 list is returned as-is."
   (declare (pure t) (side-effect-free t))
@@ -159,7 +159,8 @@ list is returned as-is."
   counsel-projectile-find-dir
   counsel-projectile-find-file
   counsel-projectile-switch-project
-  :bind ("C-x s" . my-git-grep)
+  :bind (("C-x s" . my-git-grep)
+         ("C-x b" . counsel-projectile-switch-to-buffer))
   :ensure)
 
 (use-package display-line-numbers
@@ -222,7 +223,8 @@ list is returned as-is."
 (use-package hydra
   :bind (("C-c j" . dumb-jump-hydra/body)
          ("C-c m" . magit-hydra/body)
-         ("C-c p" . projectile-hydra/body))
+         ("C-c p" . projectile-hydra/body)
+         ("C-c s" . persp-hydra/body))
   :commands
   hydra-default-pre
   hydra-keyboard-quit
@@ -231,35 +233,49 @@ list is returned as-is."
   hydra-set-transient-map
   :config
   (defhydra dumb-jump-hydra (:color blue :columns 3)
-     "Dumb Jump"
-     ("j" dumb-jump-go "Go")
-     ("o" dumb-jump-go-other-window "Other window")
-     ("e" dumb-jump-go-prefer-external "Go external")
-     ("x" dumb-jump-go-prefer-external-other-window "Go external other window")
-     ("i" dumb-jump-go-prompt "Prompt")
-     ("l" dumb-jump-quick-look "Quick look")
-     ("b" dumb-jump-back "Back"))
-   (defhydra magit-hydra (:color blue :columns 3)
-     "Magit"
-     ("b" magit-blame-addition "blame")
-     ("c" magit-clone "clone")
-     ("i" magit-init "init")
-     ("l" magit-log-buffer-file "commit log (current file)")
-     ("L" magit-log-current "commit log (project)")
-     ("s" magit-status "status"))
-   (defhydra projectile-hydra (:color blue :columns 3)
-     "Projectile"
-     ("b" counsel-projectile-switch-to-buffer "list")
-     ("k" projectile-kill-buffers "kill all")
-     ("S" projectile-save-project-buffers "save all")
-     ("d" counsel-projectile-find-dir "directory")
-     ("D" projectile-dired "root")
-     ("f" counsel-projectile-find-file "file")
-     ("p" counsel-projectile-switch-project "project")
-     ("i" projectile-invalidate-cache "reset cache")
-     ("r" projectile-replace "replace")
-     ("R" projectile-replace-regexp "regexp replace")
-     ("s" counsel-rg "search"))
+    "Dumb Jump"
+    ("j" dumb-jump-go "Go")
+    ("o" dumb-jump-go-other-window "Other window")
+    ("e" dumb-jump-go-prefer-external "Go external")
+    ("x" dumb-jump-go-prefer-external-other-window "Go external other window")
+    ("i" dumb-jump-go-prompt "Prompt")
+    ("l" dumb-jump-quick-look "Quick look")
+    ("b" dumb-jump-back "Back"))
+  (defhydra magit-hydra (:color blue :columns 3)
+    "Magit"
+    ("b" magit-blame-addition "blame")
+    ("c" magit-clone "clone")
+    ("i" magit-init "init")
+    ("l" magit-log-buffer-file "commit log (current file)")
+    ("L" magit-log-current "commit log (project)")
+    ("s" magit-status "status"))
+  (defhydra projectile-hydra (:color blue :columns 3)
+    "Projectile"
+    ("b" counsel-projectile-switch-to-buffer "list")
+    ("k" projectile-kill-buffers "kill all")
+    ("S" projectile-save-project-buffers "save all")
+    ("d" counsel-projectile-find-dir "directory")
+    ("D" projectile-dired "root")
+    ("f" counsel-projectile-find-file "file")
+    ("p" projectile-persp-switch-project "project")
+    ("i" projectile-invalidate-cache "reset cache")
+    ("r" projectile-replace "replace")
+    ("R" projectile-replace-regexp "regexp replace")
+    ("s" counsel-rg "search"))
+  (defhydra persp-hydra (:color blue :columns 3)
+    "Perspective"
+    ("s" projectile-persp-switch-project "switch")
+    ("k" persp-remove-buffer "remove")
+    ("c" persp-kill "kill")
+    ("r" persp-rename "rename")
+    ("a" persp-add-buffer "add buffer")
+    ("A" persp-set-buffer "set buffer")
+    ("b" persp-switch-to-buffer "switch to buffer")
+    ("i" persp-import "import")
+    ("n" persp-next "next")
+    ("p" persp-prev "prev")
+    ("S" persp-state-save "save")
+    ("L" persp-state-load "load"))
   :ensure)
 
 (use-package irony
@@ -309,6 +325,10 @@ list is returned as-is."
 
 (use-package perspective
   :config (persp-mode)
+  :ensure)
+
+(use-package persp-projectile
+  :after (perspective projectile)
   :ensure)
 
 (use-package prescient
