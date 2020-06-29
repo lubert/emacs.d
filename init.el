@@ -144,6 +144,9 @@ list is returned as-is."
 
 (use-package counsel-projectile
   :after (counsel)
+  :custom
+  (counsel-projectile-remove-current-project t)
+  (counsel-projectile-remove-current-buffer t)
   :config
   (defun my-counsel-projectile-rg ()
     (interactive)
