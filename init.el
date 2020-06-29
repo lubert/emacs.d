@@ -145,7 +145,7 @@ list is returned as-is."
 (use-package counsel-projectile
   :after (counsel)
   :config
-  (defun my-counsel-projectile-rg (&optional options)
+  (defun my-counsel-projectile-rg ()
     (interactive)
     (if (and (eq projectile-require-project-root 'prompt)
              (not (projectile-project-p)))
@@ -166,8 +166,8 @@ list is returned as-is."
          'counsel-rg
          counsel-projectile-rg-extra-actions)
         (counsel-rg (eval counsel-projectile-rg-initial-input)
-                    (read-directory-name "In directory: " nil default-directory t)
-                    options
+                    (read-directory-name "Dir: " nil default-directory t)
+                    nil
                     (projectile-prepend-project-name
                      (concat (car (if (listp counsel-rg-base-command)
                                       counsel-rg-base-command
@@ -179,6 +179,7 @@ list is returned as-is."
   counsel-projectile-find-file
   counsel-projectile-switch-project
   :bind (("C-x s" . my-counsel-projectile-rg)
+         ("C-x f" . counsel-projectile-find-file)
          ("C-x b" . counsel-projectile-switch-to-buffer))
   :ensure)
 
@@ -357,7 +358,6 @@ list is returned as-is."
   (projectile-indexing-method 'alien)
   (projectile-completion-system 'ivy)
   :config (projectile-mode +1)
-  :bind ("C-x f" . projectile-find-file)
   :ensure)
 
 (use-package rjsx-mode
