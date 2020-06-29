@@ -153,7 +153,7 @@ list is returned as-is."
   (defun my-git-grep ()
     "Search the project for the word under cursor"
     (interactive)
-    (counsel-projectile-git-grep (thing-at-point 'symbol)))
+    (counsel-projectile-rg (thing-at-point 'symbol)))
   :commands
   counsel-projectile-switch-to-buffer
   counsel-projectile-find-dir
