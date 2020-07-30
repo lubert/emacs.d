@@ -205,6 +205,10 @@ list is returned as-is."
 (use-package docker-compose-mode
   :ensure)
 
+(use-package dtrt-indent
+  :config (dtrt-indent-global-mode 1)
+  :ensure)
+
 (use-package dumb-jump
   :custom (dumb-jump-selector 'ivy)
   :hook (prog-mode . dumb-jump-mode)
