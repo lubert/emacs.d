@@ -318,8 +318,11 @@ list is returned as-is."
   :ensure)
 
 (use-package ivy
-  :custom (ivy-re-builders-alist '((t . ivy--regex-plus)))
-  :config (ivy-mode 1)
+  :custom
+  (ivy-re-builders-alist '((t . ivy--regex-plus)))
+  :config
+  (ivy-mode 1)
+  (define-key ivy-minibuffer-map (kbd "C-c o") 'ivy-occur)
   :ensure)
 
 (use-package js2-mode
