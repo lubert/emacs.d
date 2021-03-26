@@ -323,8 +323,10 @@ list is returned as-is."
   :custom
   (ivy-re-builders-alist '((t . ivy--regex-plus)))
   :config
+  (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
   (ivy-mode 1)
   (define-key ivy-minibuffer-map (kbd "C-c o") 'ivy-occur)
+  (set-face-attribute 'ivy-current-match nil :background "#333333")
   :ensure)
 
 (use-package js2-mode
