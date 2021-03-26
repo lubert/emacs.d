@@ -37,6 +37,7 @@
 (global-auto-revert-mode 1)
 (global-subword-mode 1)
 (menu-bar-mode 0)
+(global-hl-line-mode 1)
 
 ;; Removes *Completions* from buffer after you've opened a file.
 (add-hook 'minibuffer-exit-hook
@@ -72,6 +73,7 @@
 (setq vc-follow-symlinks t)
 (setq make-backup-files nil)
 (setq-default indent-tabs-mode nil)
+(set-face-background 'hl-line "#333333")
 
 (fset 'yes-or-no-p 'y-or-n-p)
 
