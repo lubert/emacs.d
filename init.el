@@ -237,6 +237,9 @@ list is returned as-is."
   :hook (flycheck-mode . flycheck-irony-setup)
   :ensure)
 
+(use-package flx
+  :ensure)
+
 (use-package highlight-symbol
   :bind (("M-n" . highlight-symbol-next)
          ("M-p" . highlight-symbol-prev))
@@ -320,13 +323,13 @@ list is returned as-is."
   :ensure)
 
 (use-package ivy
-  :custom
-  (ivy-re-builders-alist '((t . ivy--regex-plus)))
+  :after (flx)
   :config
   (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
   (ivy-mode 1)
   (define-key ivy-minibuffer-map (kbd "C-c o") 'ivy-occur)
   (set-face-attribute 'ivy-current-match nil :background "#333333")
+  (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
   :ensure)
 
 (use-package js2-mode
