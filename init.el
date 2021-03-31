@@ -329,7 +329,9 @@ list is returned as-is."
   (ivy-mode 1)
   (define-key ivy-minibuffer-map (kbd "C-c o") 'ivy-occur)
   (set-face-attribute 'ivy-current-match nil :background "#333333")
-  (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
+  (setq ivy-re-builders-alist
+        '((counsel-projectile-find-file . ivy--regex-fuzzy)
+          (t . ivy--regex-plus)))
   :ensure)
 
 (use-package js2-mode
