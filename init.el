@@ -369,7 +369,7 @@ list is returned as-is."
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   :custom
   (projectile-enable-caching t)
-  (projectile-indexing-method 'alien)
+  (projectile-indexing-method 'hybrid)
   (projectile-completion-system 'ivy)
   :config (projectile-mode +1)
   :ensure)
