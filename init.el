@@ -410,6 +410,9 @@ list is returned as-is."
   :config (flycheck-add-mode 'typescript-tslint 'web-mode)
   :ensure)
 
+(use-package transpose-frame
+  :ensure)
+
 (use-package uniquify
   :custom
   (uniquify-after-kill-buffer-p t) ; rename after killing uniquified
