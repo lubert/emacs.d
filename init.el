@@ -117,6 +117,14 @@ list is returned as-is."
 ;; -- Packages --
 ;; --------------
 
+(use-package add-node-modules-path
+  :config
+  (eval-after-load 'web-mode
+    '(add-hook 'web-mode-hook 'add-node-modules-path))
+  (eval-after-load 'rjsx-mode
+    '(add-hook 'rjsx-mode-hook 'add-node-modules-path))
+  :ensure)
+
 (use-package company
   :custom
   (company-idle-delay 0.1)
@@ -230,6 +238,9 @@ list is returned as-is."
 
 (use-package flycheck
   :hook (prog-mode . flycheck-mode)
+  :config (setq-default flycheck-disabled-checkers
+                        (append flycheck-disabled-checkers
+                                '(javascript-jshint)))
   :ensure)
 
 (use-package flycheck-irony
@@ -375,8 +386,10 @@ list is returned as-is."
   :ensure)
 
 (use-package rjsx-mode
+  :after (flycheck)
   :mode (("\\.jsx\\'" . rjsx-mode)
          ("components\\/.*\\.js\\'" . rjsx-mode))
+  :config (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
   :ensure)
 
 (use-package robe
