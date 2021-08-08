@@ -193,6 +193,7 @@ list is returned as-is."
   counsel-projectile-switch-project
   :bind (("C-x s" . my-counsel-projectile-rg)
          ("C-x f" . counsel-projectile-find-file)
+         ("C-x p" . counsel-projectile-switch-project)
          ("C-x b" . counsel-projectile-switch-to-buffer))
   :ensure)
 
