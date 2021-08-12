@@ -112,6 +112,7 @@ list is returned as-is."
 (global-set-key "\M-h" 'subword-backward-kill)
 (global-set-key "\M-z" 'zap-up-to-char)
 (autoload 'zap-up-to-char "misc" 'interactive)
+(add-to-list 'process-coding-system-alist '("python" . (utf-8 . utf-8)))
 
 ;; --------------
 ;; -- Packages --
@@ -212,6 +213,11 @@ list is returned as-is."
         (display-line-numbers-mode)))
   (global-display-line-numbers-mode))
 
+(use-package direnv
+  :ensure t
+  :config
+  (direnv-mode))
+
 (use-package docker-compose-mode
   :ensure)
 
@@ -222,18 +228,6 @@ list is returned as-is."
 (use-package dumb-jump
   :custom (dumb-jump-selector 'ivy)
   :hook (prog-mode . dumb-jump-mode)
-  :ensure)
-
-(use-package eglot
-  :after (company yasnippet)
-  :hook
-  (python-mode . eglot-ensure)
-  (ruby-mode . eglot-ensure)
-  :ensure)
-
-(use-package elpy
-  :defer
-  :init (advice-add 'python-mode :before 'elpy-enable)
   :ensure)
 
 (use-package flycheck
@@ -344,6 +338,15 @@ list is returned as-is."
   :mode "\\.js\\'"
   :ensure)
 
+(use-package lsp-mode
+  :ensure)
+
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                         (require 'lsp-pyright)
+                         (lsp-deferred))))
+
 (use-package magit
   :defer
   :ensure)
@@ -392,12 +395,6 @@ list is returned as-is."
   :config (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
   :ensure)
 
-(use-package robe
-  :after (company ruby-mode)
-  :hook (ruby-mode . robe-mode)
-  :config (push 'company-robe company-backends)
-  :ensure)
-
 (use-package ruby-mode
   :custom (ruby-insert-encoding-magic-comment nil))
 
@@ -414,13 +411,6 @@ list is returned as-is."
 
 (use-package terraform-mode
   :mode "\\.tf\\'"
-  :ensure)
-
-(use-package tide
-  :after (typescript-mode company flycheck)
-  :hook ((typescript-mode . tide-setup)
-         (typescript-mode . tide-hl-identifier-mode))
-  :config (flycheck-add-mode 'typescript-tslint 'web-mode)
   :ensure)
 
 (use-package transpose-frame
