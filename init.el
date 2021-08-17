@@ -118,14 +118,6 @@ list is returned as-is."
 ;; -- Packages --
 ;; --------------
 
-(use-package add-node-modules-path
-  :config
-  (eval-after-load 'web-mode
-    '(add-hook 'web-mode-hook 'add-node-modules-path))
-  (eval-after-load 'rjsx-mode
-    '(add-hook 'rjsx-mode-hook 'add-node-modules-path))
-  :ensure)
-
 (use-package company
   :custom
   (company-idle-delay 0.1)
@@ -226,11 +218,6 @@ list is returned as-is."
   :config (dtrt-indent-global-mode 1)
   :ensure)
 
-(use-package dumb-jump
-  :custom (dumb-jump-selector 'ivy)
-  :hook (prog-mode . dumb-jump-mode)
-  :ensure)
-
 (use-package flycheck
   :hook (prog-mode . flycheck-mode)
   :config (setq-default flycheck-disabled-checkers
@@ -256,8 +243,7 @@ list is returned as-is."
   :ensure)
 
 (use-package hydra
-  :bind (("C-c j" . dumb-jump-hydra/body)
-         ("C-c m" . magit-hydra/body)
+  :bind (("C-c m" . magit-hydra/body)
          ("C-c p" . projectile-hydra/body)
          ("C-c s" . persp-hydra/body))
   :commands
@@ -267,15 +253,6 @@ list is returned as-is."
   hydra-show-hint
   hydra-set-transient-map
   :config
-  (defhydra dumb-jump-hydra (:color blue :columns 3)
-    "Dumb Jump"
-    ("j" dumb-jump-go "Go")
-    ("o" dumb-jump-go-other-window "Other window")
-    ("e" dumb-jump-go-prefer-external "Go external")
-    ("x" dumb-jump-go-prefer-external-other-window "Go external other window")
-    ("i" dumb-jump-go-prompt "Prompt")
-    ("l" dumb-jump-quick-look "Quick look")
-    ("b" dumb-jump-back "Back"))
   (defhydra magit-hydra (:color blue :columns 3)
     "Magit"
     ("b" magit-blame-addition "blame")
@@ -335,11 +312,14 @@ list is returned as-is."
         '((t . ivy--regex-plus)))
   :ensure)
 
-(use-package js2-mode
-  :mode "\\.js\\'"
-  :ensure)
-
 (use-package lsp-mode
+  :config
+  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
+  :hook ((prog-mode . lsp)
+         (lsp-mode . (lambda ()
+                      (let ((lsp-keymap-prefix "C-c l"))
+                        (lsp-enable-which-key-integration)))))
+  :defer
   :ensure)
 
 (use-package lsp-pyright
@@ -389,13 +369,6 @@ list is returned as-is."
   :config (projectile-mode +1)
   :ensure)
 
-(use-package rjsx-mode
-  :after (flycheck)
-  :mode (("\\.jsx\\'" . rjsx-mode)
-         ("components\\/.*\\.js\\'" . rjsx-mode))
-  :config (flycheck-add-mode 'javascript-eslint 'rjsx-mode)
-  :ensure)
-
 (use-package ruby-mode
   :custom (ruby-insert-encoding-magic-comment nil))
 
@@ -417,6 +390,9 @@ list is returned as-is."
 (use-package transpose-frame
   :ensure)
 
+(use-package typescript-mode
+  :ensure)
+
 (use-package uniquify
   :custom
   (uniquify-after-kill-buffer-p t) ; rename after killing uniquified
@@ -428,38 +404,12 @@ list is returned as-is."
   :config (global-visible-mark-mode 1)
   :ensure)
 
-(use-package web-mode
-  :hook (web-mode . (lambda ()
-                      (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                        (tide-setup))))
-  :mode (("\\.phtml\\'" . web-mode)
-         ("\\.tpl\\.php\\'" . web-mode)
-         ("\\.[agj]sp\\'" . web-mode)
-         ("\\.as[cp]x\\'" . web-mode)
-         ("\\.erb\\'" . web-mode)
-         ("\\.handlebars\\'" . web-mode)
-         ("\\.mustache\\'" . web-mode)
-         ("\\.tsx\\'" . web-mode)
-         ("\\.djhtml\\'" . web-mode))
+(use-package which-key
+  :config (which-key-mode)
   :ensure)
 
 (use-package ws-butler
   :config (ws-butler-global-mode 1)
-  :ensure)
-
-(use-package yasnippet-snippets
-  :after yasnippet
-  :config (yasnippet-snippets-initialize)
-  :ensure)
-
-(use-package yasnippet
-  :commands yas--get-snippet-tables
-  :config (yas-global-mode)
-  :hook (yas-minor-mode . my/disable-yas-if-no-snippets)
-  :preface
-  (defun my/disable-yas-if-no-snippets ()
-    (when (and yas-minor-mode (null (yas--get-snippet-tables)))
-      (yas-minor-mode -1)))
   :ensure)
 
 (use-package zenburn-theme
