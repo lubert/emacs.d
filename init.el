@@ -81,31 +81,6 @@
 ;; -- Macros --
 ;; ------------
 
-(defun doom-unquote (exp)
-  "Return EXP unquoted."
-  (declare (pure t) (side-effect-free t))
-  (while (memq (car-safe exp) '(quote function))
-    (setq exp (cadr exp)))
-  exp)
-
-(defun doom-enlist (exp)
-  "Return EXP wrapped in a list, or as-is if already a list."
-  (declare (pure t) (side-effect-free t))
-  (if (listp exp) exp (list exp)))
-
-(defun doom--resolve-hook-forms (hooks)
-  "Convert a list of modes into a list of hook symbols.
-If a mode is quoted, it is left as is.  If the entire HOOKS list is quoted, the
-list is returned as-is."
-  (declare (pure t) (side-effect-free t))
-  (let ((hook-list (doom-enlist (doom-unquote hooks))))
-    (if (eq (car-safe hooks) 'quote)
-        hook-list
-      (cl-loop for hook in hook-list
-               if (eq (car-safe hook) 'quote)
-               collect (cadr hook)
-               else collect (intern (format "%s-hook" (symbol-name hook)))))))
-
 (define-key key-translation-map [?\C-h] [?\C-?])
 (global-set-key "\M-o" 'other-window)
 (global-set-key "\M-d" 'subword-kill)
