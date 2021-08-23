@@ -288,20 +288,30 @@
   :ensure)
 
 (use-package lsp-mode
-  :config
-  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
-  :hook ((prog-mode . lsp)
-         (lsp-mode . (lambda ()
-                      (let ((lsp-keymap-prefix "C-c l"))
-                        (lsp-enable-which-key-integration)))))
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  (setq lsp-disabled-clients '(lsp-solargraph))
+  :hook ((prog-mode . lsp-deferred)
+         (lsp-mode . lsp-enable-which-key-integration))
   :defer
   :ensure)
 
+(use-package lsp-ui
+  :after (lsp-mode)
+  :commands lsp-ui-mode
+  :ensure)
+
+(use-package lsp-ivy
+  :after (lsp-mode ivy)
+  :commands lsp-ivy-workspace-symbol
+  :ensure)
+
 (use-package lsp-pyright
-  :ensure t
+  :after (lsp-mode)
   :hook (python-mode . (lambda ()
                          (require 'lsp-pyright)
-                         (lsp-deferred))))
+                         (lsp-deferred)))
+  :ensure)
 
 (use-package magit
   :defer
