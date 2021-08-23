@@ -347,6 +347,9 @@
 (use-package ruby-mode
   :custom (ruby-insert-encoding-magic-comment nil))
 
+(use-package rust-mode
+  :ensure)
+
 (use-package smex
   :bind (("M-x" . smex)
          ("M-X" . smex-major-mode-commands)
