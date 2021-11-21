@@ -126,7 +126,7 @@
   (counsel-projectile-remove-current-project t)
   (counsel-projectile-remove-current-buffer t)
   :config
-  (defun my-counsel-projectile-rg ()
+  (defun dotfiles--counsel-projectile-rg ()
     (interactive)
     (if (and (eq projectile-require-project-root 'prompt)
              (not (projectile-project-p)))
@@ -159,7 +159,7 @@
   counsel-projectile-find-dir
   counsel-projectile-find-file
   counsel-projectile-switch-project
-  :bind (("C-x s" . my-counsel-projectile-rg)
+  :bind (("C-x s" . dotfiles--counsel-projectile-rg)
          ("C-x f" . counsel-projectile-find-file)
          ("C-x p" . counsel-projectile-switch-project)
          ("C-x b" . counsel-projectile-switch-to-buffer))
@@ -291,7 +291,12 @@
   :init
   (setq lsp-keymap-prefix "C-c l")
   (setq lsp-disabled-clients '(lsp-solargraph))
-  :hook ((prog-mode . lsp-deferred)
+  :config
+  (defun dotfiles--lsp-deferred-if-supported ()
+    "Run `lsp-deferred' if it's a supported mode."
+    (unless (derived-mode-p 'emacs-lisp-mode)
+      (lsp-deferred)))
+  :hook ((prog-mode . dotfiles--lsp-deferred-if-supported)
          (lsp-mode . lsp-enable-which-key-integration))
   :defer
   :ensure)
@@ -299,6 +304,10 @@
 (use-package lsp-ui
   :after (lsp-mode)
   :commands lsp-ui-mode
+  :custom
+  (lsp-ui-peek-always-show t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-doc-enable nil)
   :ensure)
 
 (use-package lsp-ivy
@@ -343,6 +352,10 @@
 (use-package prescient
   :ensure)
 
+(use-package prettier
+  :hook (js-mode . prettier-mode)
+  :ensure)
+
 (use-package projectile
   :config
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
@@ -352,6 +365,11 @@
   (projectile-indexing-method 'hybrid)
   (projectile-completion-system 'ivy)
   :config (projectile-mode +1)
+  :ensure)
+
+(use-package python-black
+  :after python
+  :hook (python-mode . python-black-on-save-mode-enable-dwim)
   :ensure)
 
 (use-package ruby-mode
@@ -426,9 +444,9 @@
 (use-package yasnippet
   :commands yas--get-snippet-tables
   :config (yas-global-mode)
-  :hook (yas-minor-mode . my/disable-yas-if-no-snippets)
+  :hook (yas-minor-mode . dotfiles--disable-yas-if-no-snippets)
   :preface
-  (defun my/disable-yas-if-no-snippets ()
+  (defun dotfiles--disable-yas-if-no-snippets ()
     (when (and yas-minor-mode (null (yas--get-snippet-tables)))
       (yas-minor-mode -1)))
   :ensure)
