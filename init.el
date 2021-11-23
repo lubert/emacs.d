@@ -287,6 +287,10 @@
         '((t . ivy--regex-plus)))
   :ensure)
 
+(use-package json-mode
+  :defer
+  :ensure)
+
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c l")
@@ -365,6 +369,10 @@
   (projectile-indexing-method 'hybrid)
   (projectile-completion-system 'ivy)
   :config (projectile-mode +1)
+  :ensure)
+
+(use-package protobuf-mode
+  :defer
   :ensure)
 
 (use-package python-black
