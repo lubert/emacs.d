@@ -309,9 +309,14 @@
   :after (lsp-mode)
   :commands lsp-ui-mode
   :custom
-  (lsp-ui-peek-always-show t)
-  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-doc-border (face-foreground 'default))
   (lsp-ui-doc-enable nil)
+  (lsp-ui-doc-header t)
+  (lsp-ui-doc-include-signature t)
+  (lsp-ui-peek-always-show t)
+  (lsp-ui-sideline-delay 0.05)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-show-hover t)
   :ensure)
 
 (use-package lsp-ivy
